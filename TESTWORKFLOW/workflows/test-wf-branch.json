@@ -1,0 +1,98 @@
+{
+  "id": "test-wf-branch",
+  "name": "Test 7 — Branching (IF → success / failure respond)",
+  "description": "Webhook → IF on {{status}}. The true branch reaches a 'SUCCESS' respond node; the false branch a 'FAILURE' respond node. Only the executed branch responds.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "if",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "IF Condition",
+        "config": {
+          "valueA": "{{body.status}}",
+          "operator": "equals",
+          "valueB": "success",
+          "caseSensitive": false
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Respond Success",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"result\": \"SUCCESS\"\n}"
+        }
+      }
+    },
+    {
+      "id": "n-4",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Respond Failure",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"result\": \"FAILURE\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2true-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "true",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2false-n-4in",
+      "source": "n-2",
+      "target": "n-4",
+      "sourceHandle": "false",
+      "targetHandle": "in"
+    }
+  ]
+}

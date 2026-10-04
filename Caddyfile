@@ -1,0 +1,61 @@
+# ============================================================================
+# W FLOW — Caddy reverse proxy
+#
+# Used by the optional `caddy` service in docker-compose.yml, which is off by
+# default and started with a profile:
+#
+#   docker compose --profile proxy up -d
+#
+# The site address comes from SITE_ADDRESS in .env (falling back to localhost):
+#
+#   SITE_ADDRESS=flow.example.com     → real HTTPS, certificate fetched and
+#                                       renewed automatically (ports 80 + 443
+#                                       must be reachable from the internet)
+#   SITE_ADDRESS=localhost            → https://localhost with Caddy's own
+#                                       internal CA (fine for testing on the
+#                                       host; the browser warns about the
+#                                       untrusted issuer unless you install
+#                                       Caddy's root certificate)
+#
+# `wflow` is the compose service name, resolved on the internal network — the
+# app itself never needs to publish port 3001 to the internet.
+#
+# After enabling it, set these in .env and restart the app so it knows it is
+# behind a proxy:
+#   TRUST_PROXY=1
+#   BF_COOKIE_SECURE=1                     (HTTPS only)
+#   BF_PUBLIC_URL=https://flow.example.com (e-mail links, OAuth redirects)
+#   BF_SITE_DOMAIN=flow.example.com        (landing page / SEO placeholders)
+#
+# Behind Cloudflare every connection comes from a Cloudflare edge address, so
+# the visitor's IP is read from CF-Connecting-IP — but only when the request
+# really arrives from one of Cloudflare's published ranges
+# (https://www.cloudflare.com/ips/); anyone connecting directly cannot forge
+# it. Without Cloudflare in front nothing changes: {client_ip} is then simply
+# the connecting address.
+# ============================================================================
+
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		client_ip_headers CF-Connecting-IP
+	}
+}
+
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+	reverse_proxy wflow:3001 {
+		# Forward the real client IP so rate limiting and the admin panel's
+		# IP allowlist see visitors, not the proxy. X-Forwarded-For is replaced,
+		# not appended to: the app (TRUST_PROXY=1) reads its last entry.
+		header_up X-Real-IP {client_ip}
+		header_up X-Forwarded-For {client_ip}
+	}
+
+	# Every request (including the external /webhook/* calls) is logged, so a
+	# failing integration is easy to debug: docker compose logs caddy
+	log {
+		output stdout
+		format console
+	}
+}

@@ -1,0 +1,136 @@
+{
+  "id": "test-wf-pdfai",
+  "name": "Test 3 — PDF Analyzer (webhook → extract → agent → respond)",
+  "description": "Upload a PDF to the webhook; text is extracted, an AI agent analyzes it (manual output fallback if no tokens), and the respond node returns the analysis.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "extractFile",
+      "position": {
+        "x": -360,
+        "y": 150
+      },
+      "data": {
+        "label": "Extract PDF Text",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "fileSource": "field",
+          "sourceField": "body.pdf",
+          "sourceFile": "",
+          "contentMode": "base64",
+          "fileNameField": "",
+          "fileName": "upload.pdf",
+          "outputMode": "text",
+          "format": "auto",
+          "delimiter": "auto",
+          "headerRow": true,
+          "sheetIndex": 1,
+          "encoding": "utf-8",
+          "maxTextLength": 100000,
+          "maxRows": 1000,
+          "entryPattern": "",
+          "maxEntries": 500,
+          "outputFile": "",
+          "manualOutput": false,
+          "manualOutputJson": ""
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "aiAgent",
+      "position": {
+        "x": -40,
+        "y": 150
+      },
+      "data": {
+        "label": "Analyze With AI",
+        "config": {
+          "agentSource": "inline",
+          "agentId": "",
+          "provider": "groq",
+          "baseUrl": "",
+          "apiKey": "",
+          "model": "openai/gpt-oss-120b",
+          "temperature": 0.2,
+          "maxTokens": 800,
+          "systemPrompt": "You are a helpful analysis agent.",
+          "prompt": "Analyze this text:\n\n{{text}}",
+          "useHttpTool": false,
+          "httpMethod": "GET",
+          "httpUrl": "https://api.example.com/data",
+          "httpHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+          "httpBody": "{}",
+          "useTimeTool": false,
+          "apiUrl": "",
+          "apiMethod": "POST",
+          "apiHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+          "apiBody": "{\n  \"message\": \"{{json}}\"\n}",
+          "apiReplyPath": "",
+          "apiTimeout": 30,
+          "manualOutput": true,
+          "manualOutputJson": "{\n  \"reply\": \"[manual] The PDF was received. Its analysis was skipped because model tokens are exhausted.\"\n}"
+        }
+      }
+    },
+    {
+      "id": "n-4",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook Respond",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"analysis\": \"{{reply}}\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2out-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-3out-n-4in",
+      "source": "n-3",
+      "target": "n-4",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

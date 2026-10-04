@@ -1,0 +1,31 @@
+node_modules/
+dist/
+data/
+*.log
+.DS_Store
+
+# secrets & environment — NEVER commit these
+.env
+.env.*
+!.env.example
+*.local
+.secret
+
+# deployment
+!.env.production.example
+deploy/vps.env
+
+# generated installer scripts and a stray nested checkout
+.check/
+/wflow/
+
+# private marketing material (screenshots, drafts)
+docs/marketing/
+
+# one-click update of a self-hosted copy (server/updater.js)
+.wflow-update/
+wflow-version.json
+.tmp-update-*/
+
+# clean public copy made by scripts/publish-public.sh
+.public-mirror/

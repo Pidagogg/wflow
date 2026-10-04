@@ -1,0 +1,51 @@
+{
+  "id": "test-wf-respondonly",
+  "name": "Test 2 — Respond Only",
+  "description": "Webhook trigger forwards the body straight to the Webhook Respond node.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook Respond",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"ack\": true,\n  \"source\": \"{{body.source}}\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

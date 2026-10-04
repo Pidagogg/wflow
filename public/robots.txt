@@ -1,0 +1,11 @@
+# W flow — robots.txt
+# The server fills in the domain (admin panel → Deployment, or BF_SITE_DOMAIN)
+# and appends the AI crawler policy from the admin panel (SEO & GEO).
+# API and webhook endpoints hold no content, so crawlers skip them.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /webhook/
+
+Sitemap: https://YOUR-DOMAIN/sitemap.xml

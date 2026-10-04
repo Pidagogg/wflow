@@ -1,0 +1,83 @@
+{
+  "id": "test-wf-echo",
+  "name": "Test 1 — Webhook Echo (receive → respond)",
+  "description": "Webhook trigger receives JSON, passes it through a Set node, Webhook Respond sends the message back. No auto-response from the trigger.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "set",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Set Fields",
+        "config": {
+          "mode": "set",
+          "parseValues": false,
+          "fields": [
+            {
+              "key": "echo",
+              "value": "{{body.message}}"
+            },
+            {
+              "key": "processedBy",
+              "value": "echo-test"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook Respond",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"received\": true,\n  \"message\": \"{{body.message}}\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2out-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

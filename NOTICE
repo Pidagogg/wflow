@@ -1,0 +1,15 @@
+W flow
+Copyright (c) 2026 Egor Iskhakov, operator of w-flow.tech
+
+This software is licensed under the Elastic License 2.0 — see the LICENSE file.
+
+In short (the LICENSE file is what counts): you may read, use, copy, modify
+and self-host W flow, for yourself or your company. You may not offer it to
+others as a hosted or managed service, and you may not change, disable or
+circumvent its licence-key checks (server/license.js) or remove features they
+protect.
+
+"W flow" and the W flow logo are the licensor's trademarks; the licence does
+not grant rights to use them.
+
+Third-party packages in package.json keep their own licences.

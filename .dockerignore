@@ -1,0 +1,23 @@
+# Keep the build context small and never leak secrets into build layers.
+node_modules
+dist
+data
+
+# Secrets — the live .env holds the encryption key, admin password and Stripe
+# keys. It is mounted at runtime by docker-compose instead.
+.env
+.env.*
+!.env.example
+*.local
+.secret
+
+# Repo/dev noise that the image never needs
+.git
+.github
+tests
+TESTWORKFLOW
+"bug screens"
+coverage
+*.log
+npm-debug.log*
+.DS_Store

@@ -1,0 +1,95 @@
+{
+  "id": "test-wf-seq",
+  "name": "Test 4 — Strict Sequential Chain",
+  "description": "Webhook → Code(step1) → Code(step2) → respond. Verifies each downstream node waits for its upstream to finish.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "code",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Step 1",
+        "config": {
+          "code": "return items.map(it => ({ json: { ...it.json, step: 'one', val: (it.json.body?.message || '') + '|1' } }));",
+          "outputFile": ""
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "code",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Step 2",
+        "config": {
+          "code": "return items.map(it => ({ json: { ...it.json, step: 'two', val: it.json.val + '|2' } }));",
+          "outputFile": ""
+        }
+      }
+    },
+    {
+      "id": "n-4",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook Respond",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"final\": \"{{val}}\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2out-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-3out-n-4in",
+      "source": "n-3",
+      "target": "n-4",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

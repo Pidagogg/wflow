@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PDF Analyzer</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #0a0f1d;
+    color: #f0f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 640px;
+    background: #111a2e;
+    border: 1px solid #1f2c4d;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, .5);
+  }
+  h1 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    letter-spacing: .5px;
+  }
+  p.sub { color: #a9b6d0; margin-top: 0; font-size: 13px; }
+  .drop {
+    border: 2px dashed #2c3d68;
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+    color: #a9b6d0;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+    margin-bottom: 16px;
+  }
+  .drop:hover, .drop.over { border-color: #4a7dff; background: rgba(74, 125, 255, .08); }
+  .drop .icon { font-size: 32px; display: block; margin-bottom: 8px; }
+  .file-label {
+    display: inline-block;
+    background: #4a7dff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  input[type="file"] { display: none; }
+  .file-name { margin-top: 10px; font-size: 13px; color: #f0f4ff; word-break: break-all; }
+  .err { color: #e06a6a; margin-top: 10px; font-size: 13px; }
+  .row { display: flex; gap: 10px; align-items: flex-end; }
+  .field { flex: 1; }
+  label { font-size: 12px; color: #a9b6d0; display: block; margin-bottom: 4px; }
+  input[type="text"], select {
+    width: 100%;
+    background: #0a101d;
+    border: 1px solid #1f2c4d;
+    border-radius: 7px;
+    color: #f0f4ff;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  select { cursor: pointer; }
+  .method-field { width: 130px; flex-shrink: 0; }
+  .btn {
+    background: #45c98a;
+    border: none;
+    color: #0a0f1d;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 9px 22px;
+    border-radius: 7px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .status { margin-top: 16px; font-size: 13px; color: #a9b6d0; }
+  .hint { margin-top: 10px; font-size: 11.5px; color: #6a7897; line-height: 1.55; }
+  .hint code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    color: #7fb0ff;
+    background: #0a101d;
+    border: 1px solid #1f2c4d;
+    border-radius: 4px;
+    padding: 1px 5px;
+    word-break: break-all;
+  }
+  .result {
+    margin-top: 16px;
+    background: #0a101d;
+    border: 1px solid #1f2c4d;
+    border-radius: 10px;
+    padding: 18px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.6;
+    max-height: 60vh;
+    overflow: auto;
+    display: none;
+  }
+  .result.show { display: block; }
+  .result .label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6a7897;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, .3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>PDF Analyzer</h1>
+    <p class="sub">Upload a PDF and an AI agent will analyze it.</p>
+
+    <div class="drop" id="drop">
+      <span class="icon">📄</span>
+      <div>Drag &amp; drop a PDF here</div>
+      <span class="file-label" id="fileLabel">Choose a PDF file</span>
+      <input type="file" id="fileInput" accept=".pdf,application/pdf" />
+      <div class="file-name" id="fileName"></div>
+      <div class="err" id="fileError" style="display:none"></div>
+    </div>
+
+    <div class="row">
+      <div class="method-field">
+        <label for="method">Method</label>
+        <select id="method" title="The webhook trigger node's Method must match this.">
+          <option value="POST" selected>POST</option>
+          <option value="GET">GET</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="url">Webhook URL</label>
+        <input type="text" id="url" value="http://localhost:3001/webhook/586d02d3-842c-4078-a9be-9d1ea65f3156" />
+      </div>
+      <button class="btn" id="analyzeBtn" disabled>Analyze</button>
+    </div>
+    <div class="hint">
+      Use the workflow's real webhook URL — copy it from the blue bar in the workflow editor. The workflow's
+      <b>Webhook</b> trigger must be set to the same <b>Method</b> you pick here (default POST), otherwise the server
+      answers <code>405 — only accepts …</code> with the exact request to send.
+      The file is sent as <code>body.pdf</code> (base64) plus <code>pdf</code>, matching the PDF Analyzer template's
+      “Extract PDF Text” node.
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="result" id="result"><div class="label">AI Agent's Answer</div><div id="answer"></div></div>
+  </div>
+
+<script>
+  const fileInput = document.getElementById("fileInput");
+  const fileError = document.getElementById("fileError");
+  const fileName = document.getElementById("fileName");
+  const analyzeBtn = document.getElementById("analyzeBtn");
+  const status = document.getElementById("status");
+  const result = document.getElementById("result");
+  const answer = document.getElementById("answer");
+  const urlInput = document.getElementById("url");
+  const methodInput = document.getElementById("method");
+  const drop = document.getElementById("drop");
+
+  let selectedFile = null;
+
+  function showError(msg) {
+    fileError.textContent = msg;
+    fileError.style.display = msg ? "block" : "none";
+  }
+
+  function setFile(file) {
+    if (!file) return;
+    if (file.type && file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+      showError("Only PDF files are allowed.");
+      return;
+    }
+    showError("");
+    selectedFile = file;
+    fileName.textContent = file.name + " (" + (file.size / 1024).toFixed(0) + " KB)";
+    analyzeBtn.disabled = false;
+  }
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files && fileInput.files[0]) setFile(fileInput.files[0]);
+  });
+
+  fileLabel.addEventListener("click", (e) => { e.stopPropagation(); fileInput.click(); });
+  drop.addEventListener("click", () => fileInput.click());
+
+  ["dragover", "dragenter"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", (e) => {
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  });
+
+  // A GET webhook has no body — everything travels in the query string, which
+  // cannot carry a real PDF. Fall back to a small text probe so the receive
+  // node still fires and the workflow can be exercised.
+  function useGetProbe() {
+    const url = urlInput.value.trim();
+    const params = new URLSearchParams({
+      message: "GET probe from the PDF Analyzer tester (PDF uploads need POST)",
+      name: selectedFile ? selectedFile.name : "no-file",
+      pdf: "",
+    });
+    return { url: url + (url.includes("?") ? "&" : "?") + params.toString(), body: undefined };
+  }
+
+  analyzeBtn.addEventListener("click", async () => {
+    showError("");
+    result.classList.remove("show");
+    analyzeBtn.disabled = true;
+    status.innerHTML = '<span class="spinner"></span>Analyzing PDF… this can take a few seconds.';
+
+    try {
+      const method = methodInput.value;
+      let url = urlInput.value.trim();
+      let body;
+
+      if (method === "GET") {
+        ({ url, body } = useGetProbe());
+      } else if (selectedFile) {
+        // read the PDF as base64
+        const buf = await selectedFile.arrayBuffer();
+        let binary = "";
+        const bytes = new Uint8Array(buf);
+        const chunkSize = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+        }
+        const base64 = btoa(binary);
+        // Send the file BOTH as `body.pdf` (the shape the PDF Analyzer
+        // workflow's "Extract PDF Text" node reads) and as a top-level `pdf`
+        // (for workflows that read the payload directly).
+        const file = { pdf: base64, name: selectedFile.name, mimeType: selectedFile.type || "application/pdf" };
+        body = JSON.stringify({ ...file, body: file });
+      } else {
+        throw new Error("Choose a PDF file first.");
+      }
+
+      const res = await fetch(url, {
+        method,
+        headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+        body,
+      });
+
+      // Read the body robustly: JSON when possible, raw text otherwise.
+      const text = await res.text().catch(() => "");
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { _raw: text };
+      }
+      const reply = extractReply(data);
+
+      if (!res.ok) {
+        const msg = typeof data === "object" && data.error
+          ? data.error
+          : data._raw || ("Request failed with status " + res.status + " " + res.statusText);
+        throw new Error(msg);
+      }
+      if (!reply) {
+        throw new Error("The agent did not return an answer. Open the workflow editor and check the Log console for details.");
+      }
+
+      answer.textContent = reply;
+      result.classList.add("show");
+      status.textContent = "";
+    } catch (err) {
+      status.textContent = "";
+      showError(err.message || "Something went wrong.");
+    } finally {
+      analyzeBtn.disabled = false;
+    }
+  });
+
+  // Walk the execution result returned by the webhook and pull the AI agent's
+  // reply — the PDF Analyzer template answers with {"analysis": "…"}, older
+  // versions returned the whole execution log.
+  function extractReply(data) {
+    if (!data || typeof data !== "object") return "";
+    // direct /api/ai style replies and respond-node bodies
+    const FAVOURITE = ["reply", "analysis", "answer", "message", "result", "summary", "text"];
+    const walk = (obj, depth) => {
+      if (!obj || typeof obj !== "object" || depth > 5) return "";
+      for (const k of Object.keys(obj)) {
+        if (FAVOURITE.includes(k)) {
+          const v = obj[k];
+          if (typeof v === "string" && v.trim()) return v;
+          if (v && typeof v === "object") { const r = walk(v, depth + 1); if (r) return r; }
+        }
+      }
+      for (const k of Object.keys(obj)) {
+        const v = obj[k];
+        if (!v || typeof v !== "object") continue;
+        const r = walk(v, depth + 1);
+        if (r) return r;
+      }
+      return "";
+    };
+    // execution result — find the aiAgent node's output in the log first
+    const log = Array.isArray(data.log) ? data.log : [];
+    for (const entry of log) {
+      if (entry.nodeType === "aiAgent" || (entry.nodeName || "").toLowerCase().includes("analy")) {
+        const items = Array.isArray(entry.outputItems) ? entry.outputItems : [];
+        for (const it of items) {
+          if (it && typeof it === "object") {
+            const r = walk(it, 0);
+            if (r) return r;
+          }
+        }
+      }
+    }
+    return walk(data, 0);
+  }
+</script>
+</body>
+</html>

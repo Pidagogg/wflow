@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: mailto:main@w-flow.tech
+    about: Please report vulnerabilities by e-mail, not as a public issue (see SECURITY.md).
+  - name: Questions and help
+    url: https://w-flow.tech/guides
+    about: How-to guides for common workflows.

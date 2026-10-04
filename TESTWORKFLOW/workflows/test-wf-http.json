@@ -1,0 +1,85 @@
+{
+  "id": "test-wf-http",
+  "name": "Test 8 — HTTP Request → Webhook Respond",
+  "description": "Webhook → an HTTP GET to a public API → respond node returns a fixed status.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "http",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "HTTP Request",
+        "config": {
+          "method": "GET",
+          "url": "https://httpbin.org/status/200",
+          "query": [],
+          "parseAs": "auto",
+          "followRedirects": true,
+          "authType": "none",
+          "authToken": "",
+          "authUser": "",
+          "authPass": "",
+          "headers": "{\n  \"Content-Type\": \"application/json\"\n}",
+          "body": "{\n  \"message\": \"{{message}}\"\n}",
+          "timeout": 15,
+          "retries": 0,
+          "outputFile": ""
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook Respond",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"httpStatus\": \"called\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2out-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

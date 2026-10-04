@@ -1,0 +1,119 @@
+# One-command self-hosted deployment:
+#   docker compose up -d --build
+# then open http://localhost:3001
+#
+# PostgreSQL is OPTIONAL — uncomment the `postgres` service below and set
+# DATABASE_URL to move accounts/sessions/settings to PostgreSQL. Without it the
+# app uses the built-in SQLite file (./data/admin.db), which needs nothing.
+#
+# For a public deployment put the app behind a reverse proxy (Caddy / Nginx /
+# Cloudflare Tunnel) and set TRUST_PROXY=1.
+services:
+  wflow:
+    image: wflow:latest
+    build: .
+    container_name: wflow
+    ports:
+      # Set APP_BIND=127.0.0.1 in .env once Caddy (or Cloudflare) is in front,
+      # so the app is only reachable through the proxy.
+      - "${APP_BIND:-0.0.0.0}:3001:3001"
+    env_file:
+      - .env
+    environment:
+      - PORT=3001
+      # Optional PostgreSQL backend (see .env.example for all options):
+      # - DATABASE_URL=postgres://wflow:wflow@postgres:5432/wflow
+      # - TRUST_PROXY=1
+      # - BF_ENCRYPTION_KEY=<64 hex chars>
+    # A database running on the HOST (not in a container) is reached through
+    # host.docker.internal. Docker Desktop resolves that name by itself; the
+    # host-gateway mapping below adds it on plain Linux too (VPS). So a .env
+    # with postgres://user:pass@host.docker.internal:5432/db works everywhere —
+    # inside the container. A non-Docker `npm start` on the host still needs
+    # 127.0.0.1/localhost there.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # workflows, agents and API keys persist on the host
+      - ./data:/app/data
+      # lets the admin panel's deployment edits use the same file on restart
+      - ./.env:/app/.env
+    # Uncomment `depends_on` (and the postgres service below) when enabling the
+    # PostgreSQL backend so the app waits for the database to be ready.
+    # depends_on:
+    #   - postgres
+    restart: unless-stopped
+
+  # The admin panel shares the same persistent data and .env as the public app.
+  # It is published on host loopback only, so use an SSH tunnel on AWS.
+  wflow-admin:
+    image: wflow:latest
+    container_name: wflow-admin
+    command: node server/admin.js
+    ports:
+      - "127.0.0.1:3002:3002"
+    env_file:
+      - .env
+    environment:
+      - ADMIN_PORT=3002
+      - ADMIN_HOST=0.0.0.0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+
+  # Optional: HTTPS in front of the app with Caddy (automatic Let's Encrypt
+  # certificates). It is off by default — start it with its profile:
+  #
+  #   docker compose --profile proxy up -d
+  #
+  # It needs a domain in .env, otherwise it serves https://localhost with its
+  # own internal certificate (fine for a local test):
+  #
+  #   SITE_ADDRESS=flow.example.com
+  #
+  # Caddy listens on 80/443 and proxies to the app over the compose network, so
+  # port 3001 no longer has to be published. Because the app is then behind a
+  # proxy, also set TRUST_PROXY=1 and BF_COOKIE_SECURE=1 in .env and restart it
+  # — see docs/docker.md §7.
+  caddy:
+    image: caddy:2-alpine
+    container_name: wflow-caddy
+    profiles: ["proxy"]
+    depends_on:
+      - wflow
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    environment:
+      - SITE_ADDRESS=${SITE_ADDRESS:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data          # certificates and accounts
+      - caddy-config:/config
+    restart: unless-stopped
+
+  # Optional: PostgreSQL for accounts/sessions. Enable it, uncomment
+  # `depends_on` above and set DATABASE_URL on the wflow service.
+  # The schema is created automatically on first start (server/pg.js). Keep the
+  # database volume for persistence.
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: wflow-postgres
+  #   environment:
+  #     POSTGRES_USER: wflow
+  #     POSTGRES_PASSWORD: change-me
+  #     POSTGRES_DB: wflow
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+volumes:
+  pgdata:
+  caddy-data:
+  caddy-config:

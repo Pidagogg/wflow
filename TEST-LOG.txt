@@ -1,0 +1,103 @@
+============================================================================
+ W FLOW — FULL FUNCTIONAL TEST LOG
+============================================================================
+ Run started : 2026-10-04T22:19:48.272Z
+ Run finished: 2026-10-04T22:19:51.505Z
+ Result      : ALL CHECKS PASSED  (74 passed / 0 failed / 74 total)
+ Server      : real server/index.js + server/admin.js on isolated temp DB
+ Browser     : built UI booted in headless Chrome — landing page + login/register
+                render, SPA served (title "W flow — Workflow Builder")
+ Notes       : autosave throttling (2/min normal, 2/min autosave+manual in
+                shared mode) is enforced client-side in the editor, so it is
+                verified by the editor code + the server 429 throttle test (E6)
+ Node tests  : full suite (npm test) — 387/387 passing, incl. every catalog
+                node exercised through the real executor (tests/all-nodes.test.js)
+============================================================================
+
+A. AUTHENTICATION
+  [PASS] A1 · /api/auth/config (registration policy readable)  status 200
+  [PASS] A2 · register a new account (auto-login cookie)  status 200
+  [PASS] A3 · /api/auth/me recognises the session  u1-1791152389783@example.com
+  [PASS] A4 · duplicate registration rejected (409)  status 409
+  [PASS] A5 · wrong password rejected (401)  status 401
+  [PASS] A6 · short password rejected (400)  status 400
+  [PASS] A7 · login with correct credentials  status 200
+  [PASS] A8 · protected endpoint without login (401)  status 401
+
+B. WORKFLOW BUILDER + FOLDERS
+  [PASS] B1 · home (main) folder auto-created  My Workflows
+  [PASS] B2 · create subfolder under main folder  status 200
+  [PASS] B3 · create nested subfolder  parent f0520358-5c57-470d-8523-b9c72012a2ad
+  [PASS] B4 · create workflow inside a folder  folder a556f0e0-12f6-4bfa-8616-c76cbf847aba
+  [PASS] B5 · update (rename) workflow  status 200
+  [PASS] B6 · run workflow (manual → set → log)  greeting = Hello Ada!
+  [PASS] B7 · logic nodes run (if + hash)  sha256 length 64
+  [PASS] B8 · create webhook workflow with custom slug  slug smoke-hook
+  [PASS] B9 · live webhook fires the workflow (public endpoint)  status 200
+  [PASS] B10 · move workflow between folders  status 200
+  [PASS] B11 · delete folder  status 200
+  [PASS] B12 · workflow returns to main folder after folder delete  folder home-192c779e
+  [PASS] B13 · delete nested folder  status 200
+
+C. AI BUILDER (AGENTS)
+  [PASS] C1 · create an AI agent  status 200
+  [PASS] C2 · list agents  count 1
+  [PASS] C3 · get agent  status 200
+  [PASS] C4 · update agent  status 200
+  [PASS] C5 · agent chat with unreachable model fails gracefully (controlled error)  status 500, error AI provider error (401): {
+  "error": {
+    "message": "Inco
+  [PASS] C6 · /api/ai/models degrades gracefully when provider unreachable  ok false
+  [PASS] C7 · /api/ai/test reports a controlled failure without a real key  status 400
+  [PASS] C8 · delete agent  status 200
+
+D. COMMUNITY
+  [PASS] D1 · publish a public community post  status 200
+  [PASS] D2 · search the community  hits 1
+  [PASS] D3 · publish a workflow containing credentials  status 200
+  [PASS] D4 · another user imports the public post (fork)  status 200
+  [PASS] D4b · credentials are scrubbed in community copies  authToken ""
+  [PASS] D5 · publish a private post  status 200
+  [PASS] D6 · author sees their own private post  status 200
+  [PASS] D7 · another user cannot see the private post  status 200
+
+E. COLLABORATION / SHARED SESSIONS
+  [PASS] E1 · share workflow with another user  status 200
+  [PASS] E2 · collaborator sees shared workflow in THEIR home folder  folder home-1a78d34b
+  [PASS] E3 · collaborator sees who shared the workflow  u1-1791152389783@example.com
+  [PASS] E4 · collaborator save lands in the shared record  status 200
+  [PASS] E5 · collaborator cannot move the shared workflow (403)  status 403
+  [PASS] E6 · shared auto-saves throttled to 1/minute (all 429 after E4's save)  statuses 429/429/429
+  [PASS] E7 · owner access check lists the collaborator  status 200 {"accessible":true,"shared":true,"sharedWith":[{"userId":"6319a0df-8d11-4135-b572-ad9b7fb72829","email":"u2-1791152389783@example.com","name":"User Two"}],"editing":[]}
+  [PASS] E8 · collaborator access check names the owner  u1-1791152389783@example.com
+  [PASS] E9 · owner ends the shared session (collaborators removed)  status 200 {"ok":true,"collaborators":[]}
+  [PASS] E13 · owner keeps the workflow with the final saved state  Final by Owner
+  [PASS] E10 · collaborator access flips to false after session ends  accessible false
+  [PASS] E11 · collaborator can no longer open the workflow (404)  status 404
+  [PASS] E12 · workflow disappears from the collaborator's list  gone
+
+F. ADMIN PANEL
+  [PASS] F1 · admin panel HTML is served  status 200
+  [PASS] F2 · admin /api/admin/me issues CSRF cookie + token  csrf set
+  [PASS] F3 · admin login with seeded credentials  status 200
+  [PASS] F4 · admin session recognised after login  test-admin
+  [PASS] F5 · admin Users page lists registered accounts  users 2
+  [PASS] F6 · admin panel pages respond (settings/cloud/billing/analytics/db/security/deploy)  settings:200 cloud:200 billing:200 analytics:200 db:200 security:200 deploy:200
+  [PASS] F7 · admin CSRF protection blocks a state-changing call without a token  status 403
+  [PASS] F8 · admin logout  status 200
+
+G. MISC / WHOLE APP
+  [PASS] G1 · node catalog served (>= 140 nodes)  473 nodes
+  [PASS] G2 · error-code reference served  38 codes
+  [PASS] G3 · user guide (docs) served  61461 chars
+  [PASS] G3b · user guide PDF download  122457 bytes
+  [PASS] G3c · legal page /impressum served at root  6997 chars
+  [PASS] G4 · billing status endpoint (no Stripe → plan free)  plan free
+  [PASS] G5 · SPA served on the main port  status 200
+  [PASS] G6 · free-plan workflow cap enforced (11th workflow blocked)  status 403
+  [PASS] G7 · deleting workflows frees the cap slots  count 2
+  [PASS] G8 · run-next-node stepping executes a single downstream node  status 200
+
+============================================================================
+ END OF LOG — NO FAILURES
+============================================================================

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TESTWORKFLOW — Webhook Tester</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; background:#0a0f1d; color:#f0f4ff; display:flex; align-items:flex-start; justify-content:center; padding:24px; }
+  .card { width:100%; max-width:620px; background:#111a2e; border:1px solid #1f2c4d; border-radius:12px; padding:26px; box-shadow:0 10px 32px rgba(0,0,0,.5); }
+  h1 { margin:0 0 4px; font-size:20px; }
+  p.sub { color:#a9b6d0; margin:2px 0 18px; font-size:13px; }
+  label { font-size:12px; color:#a9b6d0; display:block; margin:12px 0 4px; }
+  input[type="text"], textarea { width:100%; background:#0a101d; border:1px solid #1f2c4d; border-radius:7px; color:#f0f4ff; padding:8px 10px; font-size:13px; font-family:inherit; }
+  textarea { min-height:120px; resize:vertical; }
+  .row { display:flex; gap:8px; }
+  select { background:#0a101d; color:#f0f4ff; border:1px solid #1f2c4d; border-radius:7px; padding:7px 8px; flex:1; }
+  .btn { background:#45c98a; border:none; color:#0a0f1d; font-weight:700; padding:9px 18px; border-radius:7px; cursor:pointer; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .status { margin-top:14px; font-size:13px; color:#a9b6d0; }
+  .err { color:#e06a6a; margin-top:8px; font-size:13px; white-space:pre-wrap; }
+  pre { background:#0a101d; border:1px solid #1f2c4d; border-radius:8px; padding:14px; font-size:12px; overflow:auto; max-height:50vh; display:none; }
+  pre.show { display:block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>TESTWORKFLOW — Webhook Tester</h1>
+    <p class="sub">Send JSON to a TESTWORKFLOW webhook. The Webhook Respond node's reply is returned and shown below.</p>
+
+    <label>Workflow preset (fills the webhook URL)</label>
+    <select id="preset">
+      <option value="http://localhost:3001/webhook/test-wf-echo">1 — Echo (receive → respond)</option>
+      <option value="http://localhost:3001/webhook/test-wf-respondonly">2 — Respond Only</option>
+      <option value="http://localhost:3001/webhook/test-wf-seq">4 — Strict Sequential</option>
+      <option value="http://localhost:3001/webhook/test-wf-template">6 — Prompt Template</option>
+      <option value="http://localhost:3001/webhook/test-wf-branch">7 — Branching IF</option>
+      <option value="http://localhost:3001/webhook/test-wf-secret">9 — Secret-Protected</option>
+    </select>
+
+    <label>Webhook URL</label>
+    <input type="text" id="url" value="http://localhost:3001/webhook/test-wf-echo" />
+
+    <label>Secret header value (leave empty for none)</label>
+    <input type="text" id="secret" placeholder="e.g. s3cret" />
+
+    <label>Payload (JSON)</label>
+    <textarea id="payload">{ "message": "hello from the tester", "source": "tester", "status": "success", "name": "Bob" }</textarea>
+
+    <div style="margin-top:16px;">
+      <button class="btn" id="send">Send to webhook</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="err" id="err"></div>
+    <pre id="out"></pre>
+  </div>
+
+<script>
+  const url = document.getElementById("url");
+  const secret = document.getElementById("secret");
+  const payload = document.getElementById("payload");
+  const status = document.getElementById("status");
+  const out = document.getElementById("out");
+  const err = document.getElementById("err");
+  const send = document.getElementById("send");
+
+  document.getElementById("preset").addEventListener("change", (e) => {
+    url.value = e.target.value;
+    if (url.value.includes("wf-secret")) { secret.value = "s3cret"; } else { secret.value = ""; }
+  });
+
+  send.addEventListener("click", async () => {
+    err.style.display = "none";
+    out.classList.remove("show");
+    let body;
+    try { body = JSON.parse(payload.value); }
+    catch { err.textContent = "Payload is not valid JSON."; err.style.display = "block"; return; }
+
+    status.textContent = "Sending…";
+    send.disabled = true;
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (secret.value.trim()) headers["X-W-Flow-Secret"] = secret.value.trim();
+      const res = await fetch(url.value.trim(), { method: "POST", headers, body: JSON.stringify(body), signal: AbortSignal.timeout(60000) });
+      const text = await res.text();
+      out.textContent = `HTTP ${res.status}\n\n` + (() => { try { return JSON.stringify(JSON.parse(text), null, 2); } catch { return text; } })();
+      out.classList.add("show");
+      status.textContent = res.ok ? "Reply received." : "The webhook replied with an error.";
+    } catch (e) {
+      err.textContent = "Request failed: " + e.message;
+      err.style.display = "block";
+    } finally {
+      send.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!doctype html>
+<!--
+  W flow — marketing / landing page (SEO-ready).
+
+  The app opens with a public read-only preview. Visitors can inspect the
+  product overview before choosing the app's login / create-account action;
+  workflows, AI agents and community features remain protected.
+
+  Before publishing: search for YOUR-DOMAIN below and replace it everywhere
+  (this file, sitemap.xml, robots.txt), then confirm the canonical URL.
+
+  Legal pages (/impressum · /datenschutz) are linked from the app's welcome
+  page (/) only, not from this static page.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>W flow — Self-hosted workflow & AI agent builder</title>
+    <meta
+      name="description"
+      content="W flow is a self-hosted visual workflow builder in the spirit of n8n: connect 473 nodes (webhooks, cron, AI agents, HTTP, Slack, email and more) on a workflow canvas and automate anything. We care about your data and privacy — you decide what is stored, shared and connected."
+    />
+    <meta name="keywords" content="workflow automation, n8n alternative, self-hosted automation, AI agent builder, visual workflow builder, webhooks, cron scheduler, source available automation" />
+    <meta name="author" content="W flow" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Open Graph / social previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="W flow" />
+    <meta property="og:title" content="W flow — Self-hosted workflow & AI agent builder" />
+    <meta
+      property="og:description"
+      content="Design automations on a workflow canvas: webhooks, cron schedules, 473 nodes, AI agents with your own keys. Your data, your rules — you decide what is stored and shared."
+    />
+    <meta property="og:url" content="https://YOUR-DOMAIN/landing.html" />
+    <meta property="og:image" content="https://YOUR-DOMAIN/logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://YOUR-DOMAIN/logo.png" />
+    <meta name="twitter:title" content="W flow — Self-hosted workflow & AI agent builder" />
+    <meta
+      name="twitter:description"
+      content="Design automations on a workflow canvas: webhooks, cron schedules, 473 nodes, AI agents with your own keys. Your data, your rules."
+    />
+    <link rel="canonical" href="https://YOUR-DOMAIN/landing.html" />
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "W flow",
+        "operatingSystem": "Linux, macOS, Windows, Docker",
+        "applicationCategory": "DeveloperApplication",
+        "description": "Self-hosted visual workflow builder with 473 nodes, cron scheduling, webhooks and AI agents using your own API keys. Privacy first: you decide what is stored, shared and connected.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "url": "https://YOUR-DOMAIN/"
+      }
+    </script>
+    <style>
+      :root {
+        --bg: #0a0f1d;
+        --panel: #111a2e;
+        --line: #22304f;
+        --ink: #eef2fc;
+        --dim: #a9b6d0;
+        --faint: #5f6f92;
+        --accent: #4fd1ff;
+        --accent2: #45c98a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        line-height: 1.6;
+      }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+      header.top {
+        padding: 56px 0 30px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+      .brand .brand-logo { height: 36px; width: auto; display: block; }
+      .brand .brand-word { letter-spacing: 2px; }
+      .tag { color: var(--faint); font-size: 12px; letter-spacing: 2px; }
+      h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.15; margin: 26px 0 12px; letter-spacing: -0.5px; }
+      h1 .blue { color: var(--accent); }
+      .lede { font-size: 18px; color: var(--dim); max-width: 640px; margin: 0 0 26px; }
+      .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+      .btn {
+        display: inline-block; text-decoration: none; padding: 11px 20px; border-radius: 8px;
+        font-size: 14px; font-weight: 600; border: 1px solid var(--line); color: var(--ink);
+        background: var(--panel);
+      }
+      .btn.primary { background: var(--accent); color: #04121c; border-color: var(--accent); }
+      .btn:hover { filter: brightness(1.12); }
+      section { padding: 40px 0; border-bottom: 1px solid var(--line); }
+      h2 { font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin: 0 0 16px; }
+      .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+      .card b { display: block; margin-bottom: 6px; color: var(--accent2); font-size: 14px; }
+      .card p { margin: 0; font-size: 13.5px; color: var(--dim); }
+      .features { columns: 2; column-gap: 30px; font-size: 14px; color: var(--dim); }
+      .features li { margin-bottom: 8px; break-inside: avoid; }
+      .features li::marker { color: var(--accent2); }
+      .selfhosted { background: rgba(79, 209, 255, 0.05); border: 1px dashed var(--line); border-radius: 12px; padding: 18px 22px; font-size: 14px; color: var(--dim); }
+      .selfhosted b { color: var(--ink); }
+      footer { padding: 28px 0 60px; color: var(--faint); font-size: 13px; }
+      code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.9em; color: var(--accent); }
+      @media (max-width: 640px) { .features { columns: 1; } }
+    </style>
+  </head>
+  <body>
+    <header class="top wrap">
+      <div class="brand"><img class="brand-logo" src="/logo.png" alt="W" /><span class="brand-word">W <span style="color:var(--accent)">flow</span></span> <span class="tag">W FLOW · SELF-HOSTED</span></div>
+    </header>
+
+    <div class="wrap">
+      <section style="border-bottom:none">
+        <h1>Automate anything on a <span class="blue">workflow canvas</span> — on your own server.</h1>
+        <p class="lede">
+          W flow is a visual workflow builder in the spirit of n8n. Drag 473 nodes onto a canvas,
+          connect them, and turn “when this happens, do that, then that” into automations — webhooks, cron
+          schedules, AI agents, HTTP, Slack, email and more. Your API keys, your machine.
+        </p>
+        <p class="lede">
+          <b>Your data, your rules.</b> We care about your data and your privacy: you decide what is stored, what is
+          shared and which accounts are connected — and you can export or delete all of it at any time.
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="/">Open the app</a>
+          <a class="btn" href="#features">See what's inside</a>
+          <a class="btn" href="/guides">Step-by-step guides</a>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2>What you can build</h2>
+        <div class="cards">
+          <div class="card"><b>Webhook endpoints</b><p>Turn any workflow into an API: receive HTTP calls, process the payload, answer the caller.</p></div>
+          <div class="card"><b>Cron scheduling</b><p>Schedule (cron) triggers fire workflows on their own — every hour, weekdays at 09:00, anything.</p></div>
+          <div class="card"><b>AI agents & pipelines</b><p>Chat models, agents with tools, embeddings, structured extraction — with keys you bring yourself.</p></div>
+          <div class="card"><b>244 integrations</b><p>Slack, Discord, Telegram, GitHub, Notion, Stripe, Google, Outlook, Gitea, Mastodon, Groq, Mistral, email (SMTP) and many more.</p></div>
+          <div class="card"><b>18 ready-made feeds</b><p>YouTube channels, subreddits, Hacker News, GitHub releases, Mastodon, Bluesky, podcasts, Google News — no API key needed.</p></div>
+          <div class="card"><b>Reusable sub-workflows</b><p>Call one of your workflows from another as a building block — build once, compose everywhere.</p></div>
+          <div class="card"><b>Private by design — you decide</b><p>We care about your data. Credentials are encrypted, workflows are private until you share them, personal values stay out of anything you publish, and you can export or delete your data whenever you want. Hosted in Germany, or on your own server with the self-hosted copy.</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Everything on the canvas</h2>
+        <ul class="features">
+          <li>25 triggers: manual, webhook, schedule, Gmail, Slack, GitHub, Stripe…</li>
+          <li>302 actions: HTTP, email/SMS, chat apps, issue trackers, spreadsheets…</li>
+          <li>29 more integrations: Gitea, YouTrack, Mastodon, Brave Search, Groq, Mistral, DeepSeek…</li>
+          <li>18 feeds &amp; sources: YouTube, Reddit, Hacker News, GitHub releases, podcasts, arXiv…</li>
+          <li>8 files &amp; data nodes: extract, read/write files, compress, Data Store, SQL</li>
+          <li>51 logic nodes: IF, Switch, Loops, Code (JS), Set, Split, Summarize…</li>
+          <li>12 AI nodes: chat models, agents, image generation, embeddings, vector search</li>
+          <li>Extract data from 150+ file types — PDF, Office, images, archives</li>
+          <li>Read/write sandboxed files, Data Store, read-only SQL against the built-in DB</li>
+          <li>Per-node logs, error codes, live progress and a Stop button</li>
+          <li>Export/import workflows as JSON, share with the community</li>
+        </ul>
+      </section>
+
+      <section id="connected-accounts">
+        <h2>Connected accounts &amp; your Google data</h2>
+        <div class="selfhosted">
+          Nodes for Gmail, Google Sheets, Google Drive, Google Calendar, Google Docs, Microsoft 365, GitHub, Slack, Notion and
+          other services sign in with a <b>Connect</b> button: you log in on the service's own page and grant W flow
+          permission — W flow never sees your password. The access is stored encrypted and used <b>only to run the actions you
+          put in your own workflows</b> (for example sending an e-mail you wrote, or adding a row to your sheet), only while a
+          workflow runs. It is never sold, never used for advertising and never used to train AI models, and you can disconnect
+          at any time. W flow's use and transfer to any other app of information received from Google APIs adheres to the
+          <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>,
+          including the Limited Use requirements. Details: <a href="/datenschutz?lang=en">Privacy Policy</a>.
+        </div>
+      </section>
+
+      <section>
+        <h2>Self-hosted</h2>
+        <div class="selfhosted">
+          <b>One Node process serves everything</b> — UI, REST API and webhooks. Data persists in a local folder
+          (SQLite by default, PostgreSQL optional). Run it with <code>npm start</code>, Docker, or a VPS behind
+          Cloudflare/Caddy. The admin panel lives on its own port with its own login, IP allow-listing and SQL
+          console.
+        </div>
+      </section>
+
+      <footer class="wrap">
+        © <span id="year">2026</span> W flow · Self-hosted · <a href="/landing.html" style="color:var(--faint)">Back to top</a> ·
+        <a href="/guides" style="color:var(--faint)">Guides</a> · <a href="/de/guides" style="color:var(--faint)">Anleitungen</a> ·
+        <a href="/datenschutz?lang=en" style="color:var(--faint)">Privacy Policy</a> · <a href="/impressum?lang=en" style="color:var(--faint)">Imprint</a> ·
+        <a href="/robots.txt" style="color:var(--faint)">robots.txt</a> · <a href="/sitemap.xml" style="color:var(--faint)">sitemap</a>
+        <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+      </footer>
+    </div>
+  </body>
+</html>

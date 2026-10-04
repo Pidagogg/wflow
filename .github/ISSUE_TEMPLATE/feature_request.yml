@@ -1,0 +1,23 @@
+name: Node or feature request
+description: An integration, trigger or feature you would like in W flow.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What do you want to automate?
+      description: The job you are trying to get done, e.g. "when a Stripe payment fails, message me on Telegram".
+    validations:
+      required: true
+  - type: textarea
+    id: missing
+    attributes:
+      label: What is missing?
+      description: The node, trigger, field or setting that would make it possible.
+    validations:
+      required: true
+  - type: input
+    id: today
+    attributes:
+      label: What do you use for it today? (optional)
+      placeholder: "Zapier, n8n, Make, a script …"

@@ -1,0 +1,2897 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>W flow — ADMIN</title>
+<style>
+  :root{--bg:#0a0f1d;--panel:#111a2e;--elev:#16213a;--elev2:#1c2a4a;--line:#1f2c4d;--line2:#2c3d68;--ink:#f0f4ff;--dim:#a9b6d0;--faint:#6a7897;--cyan:#4a7dff;--green:#45c98a;--red:#e06a6a;--amber:#d9a94e;--sans:"Helvetica Neue",Helvetica,Arial,sans-serif;--mono:"Courier New",Courier,monospace}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.55}
+  h1,h2,h3{font-weight:700}
+  .wrap{max-width:860px;margin:0 auto;padding:24px}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .brand{display:inline-flex;align-items:center;gap:7px;letter-spacing:2px;font-size:14px;font-weight:700}
+  .brand-logo{height:20px;width:auto;display:block}
+  .brand-word{letter-spacing:2px}
+  .brand .c{color:var(--cyan)}
+  .badge{font-size:10px;letter-spacing:1.5px;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 50%,transparent);padding:2px 8px}
+  .panel{border:1px solid var(--line);background:var(--panel);padding:16px;margin-bottom:14px}
+  .panel h3{margin:0 0 6px;font-size:12px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase}
+  .panel h4{margin:0 0 6px;font-size:11px;letter-spacing:1px;color:var(--txt);text-transform:uppercase;opacity:.85}
+  .panel .sub{font-size:11px;color:var(--dim);margin-bottom:12px}
+  label{display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin:10px 0 4px}
+  input,textarea,select{width:100%;background:#0a101d;border:1px solid var(--line);color:var(--ink);padding:8px;font-family:var(--sans);font-size:12.5px;border-radius:7px}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 2px rgba(74,125,255,0.4)}
+  textarea{min-height:70px;resize:vertical}
+  .row{display:flex;gap:10px;align-items:center}
+  .grow{flex:1}
+  button{font-family:var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn{background:var(--elev);border:1px solid var(--line2);color:var(--ink);padding:8px 14px;font-size:11.5px;font-weight:500;border-radius:8px;transition:background 0.12s ease,border-color 0.12s ease}
+  .btn:hover{background:var(--elev2);border-color:var(--cyan)}
+  .btn.primary{background:var(--cyan);border-color:var(--cyan);color:#fff}
+  .btn.primary:hover{background:#3561c8}
+  .btn.danger:hover{color:var(--red);border-color:var(--red)}
+  .msg{font-size:11px;margin-top:8px;min-height:16px}
+  .msg.ok{color:var(--green)}
+  .msg.err{color:var(--red)}
+  .msg.muted{color:var(--faint)}
+  .kv{display:grid;grid-template-columns:200px 1fr;gap:6px 12px;font-size:12px}
+  .kv b{color:var(--dim);font-weight:600}
+  .kv code{color:var(--cyan);word-break:break-all}
+  .login-box{max-width:360px;margin:12vh auto 0;padding:22px;border:1px solid var(--line2);background:var(--panel);border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,0.5)}
+  .tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+  .tbl th{text-align:left;color:var(--dim);font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--line)}
+  .tbl td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}.mini-user-role{min-width:88px;padding:4px 5px;font-size:10px}
+  .tbl tr:last-child td{border-bottom:none}
+  .btn.mini{padding:3px 8px;font-size:10px}
+  .sql-out{margin-top:10px;max-height:340px;overflow:auto;background:#0a101d;border:1px solid var(--line);border-radius:7px;font-family:var(--mono);font-size:11px;line-height:1.6}
+  .sql-out table{border-collapse:collapse;width:100%}
+  .sql-out th{position:sticky;top:0;background:#0a101d;color:var(--cyan);text-align:left;padding:5px 9px;border-bottom:1px solid var(--line2);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+  .sql-out td{padding:4px 9px;border-bottom:1px solid var(--line);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sql-out pre{margin:0;padding:10px 12px;color:var(--green)}
+  .login-box h2{margin:0 0 4px;color:var(--cyan);letter-spacing:2px}
+  .login-box .sub{font-size:10.5px;color:var(--dim);margin-bottom:14px}
+  .tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{background:transparent;border:1px solid transparent;border-bottom:none;color:var(--dim);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 14px}
+  .tab.active{color:var(--cyan);border-color:var(--line);background:var(--panel)}
+  .hidden{display:none}
+  .foot{margin-top:18px;font-size:10.5px;color:var(--faint);line-height:1.6}
+  a{color:var(--cyan)}
+  label.chk{display:flex;align-items:center;gap:8px;cursor:pointer}
+  label.chk input{width:auto}
+  .guide{font-size:11.5px;color:var(--dim)}
+  .guide b{color:var(--ink)}
+  .guide code{background:#0a101d;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:var(--mono);font-size:10.5px;color:var(--cyan)}
+  .guide ol{margin:8px 0 12px;padding-left:20px}
+  .guide li{margin-bottom:6px}
+  .cmdrow{display:flex;gap:8px;align-items:stretch;margin:6px 0 10px}
+  .cmdrow code{flex:1;display:block;background:#0a101d;border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-family:var(--mono);font-size:11px;color:var(--cyan);overflow-x:auto;white-space:pre}
+  .cmdrow .btn{white-space:nowrap;align-self:center}
+  .btn.copied{color:var(--green);border-color:var(--green)}
+  .pg-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .pg-row .btn{margin-top:10px}
+  .status-pill{display:inline-block;font-size:10px;letter-spacing:1px;padding:2px 8px;border-radius:20px;border:1px solid var(--line2);margin-left:6px}
+  .status-pill.on{color:var(--green);border-color:color-mix(in srgb,var(--green) 50%,transparent)}
+  .status-pill.off{color:var(--faint);border-color:var(--line2)}
+  .cloud-cmds{margin-top:8px}
+  .cloud-cmds .cmdrow{margin:4px 0}
+  .btn.active{border-color:var(--cyan);color:var(--ink);background:var(--elev2)}
+  canvas#an-chart{display:block;width:100%;height:240px;background:#0a101d;border:1px solid var(--line);border-radius:8px;margin-top:12px}
+  .range-row{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><img class="brand-logo" src="/logo.png" alt="W" /><span class="brand-word">W <span class="c">flow</span></span> <span class="badge">ADMIN</span></div>
+    <div class="row">
+      <span id="who" style="font-size:11px;color:var(--dim)"></span>
+      <button class="btn hidden" id="logout">Logout</button>
+    </div>
+  </header>
+
+  <!-- login -->
+  <div id="login" class="login-box">
+    <h2>ADMIN LOGIN</h2>
+    <div class="sub">Restricted area — only reachable via admin.bat.</div>
+    <label>Username</label>
+    <input id="li-user" autocomplete="username" />
+    <label>Password</label>
+    <input id="li-pass" type="password" autocomplete="current-password" />
+    <div style="margin-top:12px">
+      <button class="btn primary grow" id="li-btn" style="width:100%;justify-content:center">LOG IN</button>
+    </div>
+    <div class="msg muted" id="li-msg"></div>
+  </div>
+
+  <!-- app -->
+  <div id="app" class="hidden">
+    <div class="tabs">
+      <button class="tab active" data-tab="setup">Page setup</button>
+      <button class="tab" data-tab="cloud">Cloud servers</button>
+      <button class="tab" data-tab="billing">Billing (Stripe)</button>
+      <button class="tab" data-tab="teams">Team plans</button>
+      <button class="tab" data-tab="legal">Legal pages</button>
+      <button class="tab" data-tab="seo">SEO &amp; GEO</button>
+      <button class="tab" data-tab="auth">Auth &amp; e-mail</button>
+      <button class="tab" data-tab="analytics">Analytics</button>
+      <button class="tab" data-tab="db">Database</button>
+      <button class="tab" data-tab="deploy">Deploy · AWS</button>
+      <button class="tab" data-tab="vps">VPS &amp; Docker</button>
+      <button class="tab" data-tab="postgres">PostgreSQL</button>
+      <button class="tab" data-tab="kubernetes">Kubernetes</button>
+      <button class="tab" data-tab="nginx">Nginx &amp; TLS</button>
+      <button class="tab" data-tab="alerts">Alerts <span class="status-pill off" id="al-tab-pill">–</span></button>
+      <button class="tab" data-tab="backups">Backups</button>
+      <button class="tab" data-tab="journal">Journal</button>
+      <button class="tab" data-tab="security">Security</button>
+      <button class="tab" data-tab="account">Account</button>
+    </div>
+
+    <!-- setup -->
+    <section id="tab-setup">
+      <div class="panel">
+        <h3>PAGE SETUP</h3>
+        <div class="sub">Values shown on the main self-hosted site.</div>
+        <label>Site name</label><input id="pg-name" maxlength="80" />
+        <label>Tag line</label><input id="pg-tagline" maxlength="160" />
+        <label>Banner / notice (optional)</label><textarea id="pg-banner" maxlength="240"></textarea>
+        <label>Workspace path</label>
+        <input id="pg-cloud-path" maxlength="40" placeholder="cloud" />
+        <div class="sub" style="margin-top:-6px;margin-bottom:10px">The cloud workspace URL prefix. <b>cloud</b> (default) serves the workspace tool pages at
+        <code>/cloud/workflows</code>; the workspace hub stays at <code>/home</code> and the welcome page at <code>/</code>. Letters, digits, <code>-</code> and <code>_</code> only.</div>
+        <label style="display:flex;align-items:flex-start;gap:8px;margin-top:14px">
+          <input type="checkbox" id="pg-sales-open" style="width:auto;margin-top:2px" />
+          <span><b>Subscriptions for sale</b> — users can buy Pro<br />
+          <span class="sub">Off (default): nobody can buy a subscription, every account uses the free plan and the site shows
+          <b>“Pro opens next month”</b>. Turn it on when you are ready to sell Pro. Same switch as <i>Billing → Accept Pro subscriptions</i>;
+          it is saved immediately.</span></span>
+        </label>
+        <div class="msg" id="pg-sales-msg"></div>
+        <label style="display:flex;align-items:flex-start;gap:8px;margin-top:14px">
+          <input type="checkbox" id="pg-beta" style="width:auto;margin-top:2px" />
+          <span><b>Beta test banner</b> — tell visitors the site is in beta<br />
+          <span class="sub">Shows a large <b>“Beta test”</b> banner on the welcome page and a short beta note on the
+          workspace home page. Untick and save when the beta is over.</span></span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;margin-top:14px">
+          <input type="checkbox" id="pg-hide-legal" style="width:auto;margin-top:2px" />
+          <span>Hide the subscription (Pro) page and all legal pages on the website<br />
+          <span class="sub">Removes <b>Pro</b>, <b>Datenschutz</b> and <b>Impressum</b> from the site
+          navigation, footer and login screen. Those URLs then return 404.</span></span>
+        </label>
+        <div class="msg" id="pg-msg"></div>
+        <button class="btn primary" id="pg-save">Save page setup</button>
+      </div>
+    </section>
+
+    <!-- cloud -->
+    <section id="tab-cloud" class="hidden">
+      <div class="panel">
+        <h3>CLOUD CONNECTION</h3>
+        <div class="sub">Optional notes about a <i>remote W flow instance</i> (URL + token, token encrypted at rest). <b>Nothing else in the app
+          uses these values yet</b> — they do not deploy or run anything. <b>Test connection</b> checks that
+          <code>&lt;API base URL&gt;/api/health</code> answers. To send runs to another server use <b>Setup → Runner</b> in the app;
+          to deploy to the STRATO VPS use <code>deploy/deploy.sh</code> (see <code>docs/strato-vps.md</code>).</div>
+        <label>Provider / label</label><input id="cl-provider" maxlength="40" placeholder="custom" />
+        <label>API base URL</label><input id="cl-apirul" maxlength="500" placeholder="https://your-cloud.example.com/" />
+        <label>Host / region (optional)</label><input id="cl-host" maxlength="500" placeholder="e.g. railway/render/fly host" />
+        <label>Access token / API key</label><input id="cl-token" type="password" placeholder="••••••••" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="cl-save">Save cloud config</button>
+          <button class="btn" id="cl-test">Test connection</button>
+        </div>
+        <div class="msg" id="cl-msg"></div>
+      </div>
+      <div class="panel">
+        <h3>WORKFLOW STORAGE</h3>
+        <div class="sub">Where saved workflows live. <b>On this device</b> stores the workflow JSON in
+          <code>./data/workflows.json</code> (default). <b>In the SQL database</b> stores every workflow in the
+          <code>workflows</code> table of your database (SQLite or PostgreSQL) with an <b>assigned code</b> per
+          workflow, so workflows live on the server/cloud and can be fetched again by code
+          (<code>GET /api/workflows/by-code/:code</code>). Switching storage migrates existing workflows
+          automatically — nothing is lost.</div>
+        <div class="row" style="margin-top:10px;gap:20px">
+          <label><input type="radio" name="wf-storage" id="st-local" value="local" /> On this device
+            <span class="sub" id="st-local-count" style="display:inline"></span></label>
+          <label><input type="radio" name="wf-storage" id="st-db" value="database" /> In the SQL database
+            <span class="sub" id="st-db-count" style="display:inline"></span></label>
+        </div>
+        <div class="msg" id="st-msg"></div>
+        <button class="btn primary" id="st-save">Save workflow storage</button>
+      </div>
+    </section>
+
+    <!-- billing (stripe) -->
+    <section id="tab-billing" class="hidden">
+      <div class="panel">
+        <h3>STRIPE CONNECTION <span class="status-pill off" id="bi-pill">…</span></h3>
+        <div class="sub">Sell the <code>€9.99 / month</code> Pro subscription on the main site. Paste your Stripe
+          keys here — secrets are encrypted at rest. Leave a field blank to keep its current value (or fall back to a
+          <code>STRIPE_*</code> env var).</div>
+        <label>Secret key</label><input id="bi-secret" type="password" autocomplete="off" spellcheck="false" placeholder="sk_live_…" />
+        <label>Publishable key</label><input id="bi-pub" autocomplete="off" spellcheck="false" placeholder="pk_live_…" />
+        <label>Webhook secret (whsec_…)</label><input id="bi-wh" type="password" autocomplete="off" spellcheck="false" placeholder="whsec_…" />
+        <label>Price id (recurring €9.99/month)</label><input id="bi-price" autocomplete="off" spellcheck="false" placeholder="price_…" />
+        <label>Success URL (optional)</label><input id="bi-success" autocomplete="off" spellcheck="false" placeholder="https://…/subscription?checkout=success" />
+        <label>Cancel URL (optional)</label><input id="bi-cancel" autocomplete="off" spellcheck="false" placeholder="https://…/subscription?checkout=canceled" />
+        <label class="chk" style="margin-top:14px">
+          <input type="checkbox" id="bi-open" />
+          <span>Accept Pro subscriptions — let users buy from the subscription page. <b>Turn this on when the launch month is over.</b>
+            While off, every account is automatically on the free plan and the page shows “Pro opens next month”.</span>
+        </label>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="bi-save">Save Stripe config</button>
+        </div>
+        <div class="msg" id="bi-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>SET UP STRIPE</h3>
+        <div class="guide">
+          <b>1. Create your price.</b>
+          <ol>
+            <li>Stripe Dashboard → Products → <b>Add a product</b> named “W flow Pro”.</li>
+            <li>Add a <b>recurring price of 9.99 / month</b>.</li>
+            <li>Copy the price id (<code>price_…</code>) into the field above.</li>
+          </ol>
+          <b>2. Add the webhook.</b>
+          <ol>
+            <li>Stripe → Developers → Webhooks → <b>Add endpoint</b>:
+              <div class="cmdrow"><code>&lt;your-app-url&gt;/api/billing/webhook</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Select the events <code>checkout.session.completed</code>, <code>customer.subscription.updated</code>,
+              <code>customer.subscription.deleted</code> and <code>invoice.payment_succeeded</code>.</li>
+            <li>Reveal its <b>signing secret</b> (<code>whsec_…</code>) and paste it above.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>CRYPTO PAYMENTS (NOWPAYMENTS) <span class="status-pill off" id="cr-pill">…</span></h3>
+        <div class="sub">Let users pay for the same Pro subscription in crypto (BTC, ETH, USDT, …) through a
+          hosted NOWPayments invoice. Secrets are encrypted at rest; leave a field blank to keep its current value (or
+          fall back to a <code>NOWPAYMENTS_*</code> env var). The IPN webhook switches the account to Pro on payment.</div>
+        <label class="chk">
+          <input type="checkbox" id="cr-enabled" />
+          <span>Accept crypto payments — show a “Pay with crypto” button on the subscription page.</span>
+        </label>
+        <label>NOWPayments API key</label><input id="cr-key" type="password" autocomplete="off" spellcheck="false" placeholder="API key from NOWPayments → Store settings" />
+        <label>IPN secret</label><input id="cr-ipn" type="password" autocomplete="off" spellcheck="false" placeholder="IPN secret (for webhook signature checks)" />
+        <div class="row" style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:150px">
+            <label>Price amount</label><input id="cr-amount" autocomplete="off" placeholder="9.99" />
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label>Price currency (fiat)</label><input id="cr-currency" autocomplete="off" placeholder="eur" />
+          </div>
+        </div>
+        <label>Fixed pay currency (optional — leave blank to let the payer choose)</label>
+        <input id="cr-paycurrency" autocomplete="off" placeholder="e.g. btc, eth, usdttrc20" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="cr-save">Save crypto config</button>
+        </div>
+        <div class="msg" id="cr-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>SET UP NOWPAYMENTS</h3>
+        <div class="guide">
+          <b>1. Get your API key.</b>
+          <ol>
+            <li>Sign up at <code>nowpayments.io</code> → Dashboard → <b>Store settings</b>.</li>
+            <li>Copy the <b>API key</b> into the field above.</li>
+            <li>Add your payout wallet under <b>Coins settings</b> so funds can be settled.</li>
+          </ol>
+          <b>2. Add the IPN webhook.</b>
+          <ol>
+            <li>Dashboard → <b>Store settings → IPN</b> and set the callback URL:
+              <div class="cmdrow"><code>&lt;your-app-url&gt;/api/billing/crypto/webhook</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Copy the <b>IPN secret key</b> into the field above and save.</li>
+          </ol>
+          <b>Note:</b> crypto payments do not renew automatically — each period is a new payment.
+        </div>
+      </div>
+    </section>
+
+    <!-- legal pages -->
+    <section id="tab-legal" class="hidden">
+      <div class="panel">
+        <h3>LEGAL PAGES — SUBDOMAIN</h3>
+        <div class="sub">
+          The legal site (<b>Impressum · Datenschutzerklärung</b>, in <b>German / English / Russian</b>) is served on
+          the main site at root paths (<code>/impressum</code>, <code>/datenschutz</code>, plus the
+          <code>/legal/*</code> alias) — no subdomain or DNS needed. There is no AGB / terms page: this service
+          publishes an imprint and a privacy policy only. Optionally the legal site can also live on its own
+          subdomain — by default <code>info.&lt;your-domain&gt;</code> (derived from the Landing page / SEO domain on
+          the Deploy tab). Enter the exact host here to override. The main app stays on the root domain; on the legal
+          subdomain every page shows the legal site.
+        </div>
+        <label>Legal subdomain (optional)</label>
+        <input id="lg-domain" maxlength="253" placeholder="info.example.com" />
+        <div class="msg" id="lg-domain-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>OPERATOR DETAILS</h3>
+        <div class="sub">
+          These values are rendered into the Impressum and the privacy policy. Fill them in before publishing — until
+          then the pages show clearly marked placeholders (<code>[First and last name]</code> …). Saving writes
+          every field; an empty field falls back to its <code>LEGAL_*</code> env var from <code>.env</code> (if set), otherwise the placeholder is shown.
+        </div>
+        <label>Full name (operator / private person)</label><input id="lg-name" maxlength="300" placeholder="Max Mustermann" />
+        <label>Company name (optional — commercial operators)</label><input id="lg-company" maxlength="300" placeholder="Example GmbH" />
+        <label>Legal form (optional)</label><input id="lg-legalform" maxlength="300" placeholder="GmbH" />
+        <label>Street and house number</label><input id="lg-address" maxlength="300" placeholder="Musterstraße 1" />
+        <label>Postal code and city</label><input id="lg-city" maxlength="300" placeholder="12345 Musterstadt" />
+        <label>Country</label><input id="lg-country" maxlength="300" placeholder="Deutschland" />
+        <label>E-mail</label><input id="lg-email" maxlength="300" placeholder="hello@example.com" />
+        <label>Phone (optional)</label><input id="lg-phone" maxlength="300" placeholder="+49 30 123456" />
+        <label>Representative (Geschäftsführer / CEO)</label><input id="lg-representative" maxlength="300" placeholder="Max Mustermann" />
+        <label>Court of registry (optional)</label><input id="lg-registercourt" maxlength="300" placeholder="Amtsgericht Musterstadt" />
+        <label>Commercial register number (optional)</label><input id="lg-registernumber" maxlength="300" placeholder="HRB 12345" />
+        <label>VAT ID (optional)</label><input id="lg-vatid" maxlength="300" placeholder="DE123456789" />
+        <label>Privacy contact e-mail (optional)</label><input id="lg-privacyemail" maxlength="300" placeholder="privacy@example.com" />
+        <label>Report content e-mail (optional)</label><input id="lg-reportemail" maxlength="300" placeholder="abuse@example.com" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="lg-save">Save legal pages</button>
+        </div>
+        <div class="msg" id="lg-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>PRIVACY POLICY — DATENSCHUTZ DETAILS</h3>
+        <div class="sub">
+          The remaining placeholders of the privacy policy. Every field is optional: leave one empty and the
+          corresponding line — and an empty section, e.g. the third-country transfer — simply disappears from the
+          page. <b>Site domain</b> defaults to the site's own domain when left empty.
+        </div>
+        <label>Last updated (Stand)</label><input id="lg-updated" maxlength="300" placeholder="September 2026" />
+        <label>Site domain</label><input id="lg-sitedomain" maxlength="300" placeholder="flow.example.com" />
+        <label>Log retention</label><input id="lg-logretention" maxlength="1000" placeholder="7 Tage" />
+        <label>Hosting provider</label><input id="lg-hoster" maxlength="1000" placeholder="Hetzner Online GmbH" />
+        <label>Hosting provider address</label><input id="lg-hosteraddress" maxlength="1000" placeholder="Industriestr. 25, 91710 Gunzenhausen" />
+        <label>Server location (optional)</label><input id="lg-hostinglocation" maxlength="1000" placeholder="Nuremberg, Germany" />
+        <label>Cloudflare note (optional)</label><input id="lg-cloudflare" maxlength="1000" placeholder="Free plan, proxy mode, WAF enabled" />
+        <label>Supabase note (optional)</label><input id="lg-supabase" maxlength="1000" placeholder="Supabase project eu-central-1 (Supabase Auth)" />
+        <label>Database note (optional)</label><input id="lg-database" maxlength="1000" placeholder="PostgreSQL on our own server in Nuremberg, Germany" />
+        <label>E-mail delivery note (optional)</label><input id="lg-mailservice" maxlength="1000" placeholder="own SMTP server / Postmark / Resend" />
+        <label>Further registration fields (optional)</label><input id="lg-extrauserfields" maxlength="1000" placeholder="Benutzername, Anzeigename" />
+        <label>How users delete their account (optional)</label><input id="lg-accountdeletion" maxlength="1000" placeholder="die Kontoeinstellungen" />
+        <label>How workflows are stored</label><input id="lg-workflowstorage" maxlength="1000" placeholder="verschlüsselt in einer Datenbank" />
+        <label>External data flows (optional)</label><input id="lg-externaldata" maxlength="1000" placeholder="Beschreibung, welche Daten bei externen Aufrufen an wen fließen" />
+        <label>Session technology</label><input id="lg-sessiontech" maxlength="1000" placeholder="technisch notwendige Session-Cookies" />
+        <label>Session duration (optional)</label><input id="lg-sessionduration" maxlength="1000" placeholder="30 Tage bei „Angemeldet bleiben“" />
+        <label>Further retention periods (optional)</label><input id="lg-storageperiods" maxlength="1000" placeholder="Billing records: 10 years" />
+        <label>Further service providers (optional)</label><input id="lg-processors" maxlength="1000" placeholder="Stripe (Zahlungsabwicklung), SMTP-Versand" />
+        <label>Third-country service (optional)</label><input id="lg-thirdcountryservice" maxlength="1000" placeholder="Stripe, USA" />
+        <label>Third-country legal basis (optional)</label><input id="lg-thirdcountrybasis" maxlength="1000" placeholder="EU-US Data Privacy Framework" />
+        <label>Supervisory authority (optional)</label><input id="lg-authority" maxlength="1000" placeholder="Der Landesbeauftragte für den Datenschutz …" />
+        <label>Further security measures (optional)</label><input id="lg-securitymeasures" maxlength="1000" placeholder="Zugriffsbeschränkungen, regelmäßige Backups" />
+        <div class="msg" id="lg-msg2"></div>
+      </div>
+    </section>
+
+    <!-- SEO & GEO -->
+    <section id="tab-seo" class="hidden">
+      <div class="panel">
+        <h3>SEO — SEARCH ENGINES</h3>
+        <div class="sub">
+          These values are injected at request time into the app shell (<code>index.html</code>), the landing page
+          (<code>/landing.html</code>) and <code>robots.txt</code>. Leave a field empty to keep the built-in default.
+          The public host used for the canonical and <code>og:url</code> tags is the <b>Landing page / SEO domain</b>
+          set on the Deploy tab.
+        </div>
+        <label>Page title</label><input id="se-title" maxlength="200" placeholder="W flow — Self-hosted workflow &amp; AI agent builder" />
+        <label>Meta description</label><textarea id="se-description" maxlength="500" rows="3" placeholder="Self-hosted visual workflow builder with AI agents — your keys, your server."></textarea>
+        <label>Keywords (comma separated)</label><input id="se-keywords" maxlength="400" placeholder="workflow automation, self-hosted, n8n alternative" />
+        <label>Social preview image URL</label><input id="se-ogimage" maxlength="500" placeholder="https://example.com/og.png" />
+        <label>Twitter / X handle</label><input id="se-twitter" maxlength="80" placeholder="@yourhandle" />
+        <label>Google site verification</label><input id="se-googleverification" maxlength="200" placeholder="the google-site-verification content value" />
+        <label>Bing site verification</label><input id="se-bingverification" maxlength="200" placeholder="the msvalidate.01 content value" />
+        <label class="chk" style="margin-top:14px">
+          <input type="checkbox" id="se-indexable" />
+          <span>Let search engines index this site. Turn off to send <code>noindex,nofollow</code> and a
+            <code>Disallow: /</code> rule in <code>robots.txt</code>.</span>
+        </label>
+        <label>Extra robots.txt rules (optional)</label><textarea id="se-robotsExtra" maxlength="2000" rows="3" placeholder="User-agent: SemrushBot&#10;Disallow: /"></textarea>
+        <label>Extra &lt;head&gt; HTML (optional — verification meta, analytics snippet)</label><textarea id="se-extraHead" maxlength="2000" rows="3" placeholder='&lt;meta name="…" content="…" /&gt;'></textarea>
+        <div class="msg" id="se-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>GEO — GENERATIVE ENGINE OPTIMIZATION</h3>
+        <div class="sub">
+          Help AI answer engines (ChatGPT, Claude, Perplexity, Google AI) describe and cite this site correctly.
+          <code>/llms.txt</code> is generated from these fields, and the AI-crawler policy is written into
+          <code>robots.txt</code>.
+        </div>
+        <label class="chk">
+          <input type="checkbox" id="se-llmsEnabled" />
+          <span>Publish <code>/llms.txt</code> — a short markdown summary for generative engines.</span>
+        </label>
+        <label class="chk">
+          <input type="checkbox" id="se-aiCrawlers" />
+          <span>Allow AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, …) to read the public pages.</span>
+        </label>
+        <label>AI summary — what is this site?</label><textarea id="se-llmsSummary" maxlength="1000" rows="3" placeholder="W flow is a self-hosted workflow automation and AI agent builder…"></textarea>
+        <label>Key facts (one per line — quotable by AI answer engines)</label><textarea id="se-llmsFacts" maxlength="2000" rows="5" placeholder="Self-hosted: data stays on your own server&#10;Brings your own AI model keys&#10;473 workflow nodes"></textarea>
+        <div class="msg" id="se-msg2"></div>
+        <button class="btn primary" id="se-save">Save SEO &amp; GEO</button>
+      </div>
+    </section>
+
+    <!-- auth & e-mail -->
+    <section id="tab-auth" class="hidden">
+      <div class="panel">
+        <h3>SMTP — E-MAIL DELIVERY</h3>
+        <div class="sub">
+          Used for the password-reset link and the e-mail verification message. Without an SMTP host the links are only
+          written to the server console (useful for local testing). Values here override the <code>SMTP_*</code> env vars.
+        </div>
+        <label>SMTP host</label><input id="au-host" maxlength="200" placeholder="smtp.example.com" />
+        <label>SMTP port</label><input id="au-port" maxlength="10" placeholder="587" />
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <input type="checkbox" id="au-secure" style="width:auto" />
+          <span>Use implicit TLS (port 465)</span>
+        </label>
+        <label>SMTP username</label><input id="au-user" maxlength="200" placeholder="apikey" />
+        <label>SMTP password</label><input id="au-pass" type="password" placeholder="leave empty to keep" autocomplete="new-password" />
+        <label>From address</label><input id="au-from" maxlength="200" placeholder="W flow &lt;no-reply@example.com&gt;" />
+        <label>Contact form e-mail</label><input id="au-contact" maxlength="200" placeholder="support@example.com" />
+        <div class="sub" style="margin-top:-4px">
+          Where messages from <b>Settings → Contact</b> are delivered. Leave empty to use the address inside
+          <b>From address</b>. Equivalent to the <code>CONTACT_EMAIL</code> env var.
+        </div>
+        <label>Send a test e-mail to</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="au-test-to" maxlength="200" placeholder="you@example.com" />
+          <button class="btn" id="au-test-mail" type="button">Send test e-mail</button>
+        </div>
+        <div class="sub">Uses the <b>saved</b> SMTP settings — save first. Shows the SMTP server's own error if it refuses.</div>
+        <div class="msg" id="au-test-msg"></div>
+        <div class="msg" id="au-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>OAUTH LOGIN — GOOGLE &amp; GITHUB</h3>
+        <div class="sub">
+          Paste the client credentials from the provider's developer console here. The secret is stored encrypted at
+          rest in the database; the <code>GOOGLE_*</code> / <code>GITHUB_*</code> env vars are used as fallback. Both
+          values are read per request, so a saved provider appears on the login card right away — no restart.
+        </div>
+        <label>Public URL (external origin — used for OAuth redirect URIs and e-mail links)</label>
+        <input id="au-public" placeholder="https://your-domain" />
+        <div class="sub" style="margin-top:-4px">
+          Leave empty to derive it from the request. Behind a proxy / tunnel set the real public origin, e.g.
+          <code>https://flow.example.com</code>. Equivalent to the <code>BF_PUBLIC_URL</code> env var.
+        </div>
+
+        <h4 style="margin-top:18px">Google</h4>
+        <label>Client ID</label><input id="au-google-id" maxlength="300" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="1234567890-abc.apps.googleusercontent.com" />
+        <label>Client secret</label><input id="au-google-secret" type="password" placeholder="leave empty to keep" autocomplete="new-password" />
+
+        <h4 style="margin-top:18px">GitHub</h4>
+        <div class="sub">Also used by the <b>Connect GitHub</b> button on the GitHub nodes. Keep the app's <b>Authorization
+          callback URL</b> set to exactly <code id="au-gh-callback"></code> — login and Connect GitHub both return there. Any other
+          value makes GitHub answer “The redirect_uri is not associated with this application”.</div>
+        <label>Client ID</label><input id="au-github-id" maxlength="300" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="Iv1.0123456789abcdef" />
+        <label>Client secret</label><input id="au-github-secret" type="password" placeholder="leave empty to keep" autocomplete="new-password" />
+
+        <h4 style="margin-top:18px">Microsoft (connected accounts for Outlook / OneDrive / … nodes)</h4>
+        <div class="sub">
+          Register an app in the Microsoft Entra admin center (App registrations → New registration, "Accounts in any
+          organizational directory and personal Microsoft accounts"), add the <b>Microsoft connect redirect URI</b>
+          shown below as a Web redirect URI, and create a client secret. Google nodes reuse the Google client above —
+          add the <b>Google connect redirect URI</b> to it as well.
+        </div>
+        <label>Client ID (application id)</label><input id="au-ms-id" maxlength="300" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="00000000-0000-0000-0000-000000000000" />
+        <label>Client secret</label><input id="au-ms-secret" type="password" placeholder="leave empty to keep" autocomplete="new-password" />
+        <label>Tenant (optional)</label><input id="au-ms-tenant" maxlength="100" placeholder="common" />
+
+        <h4 style="margin-top:22px">More connected accounts (GitLab, Slack, Notion, Dropbox, …)</h4>
+        <div class="sub">
+          Each service below gets a <b>Connect</b> button on its nodes as soon as its client ID and secret are saved. Register
+          an OAuth app at the linked page, paste the redirect URL shown, then copy the client ID and secret here. Leave a service
+          empty to keep its nodes on hand-entered tokens.
+        </div>
+        <div id="au-conn-list"></div>
+
+        <h4 style="margin-top:22px">Telegram (personal-account logins)</h4>
+        <div class="sub">
+          Lets users connect their own Telegram account on the Telegram nodes with just their phone number. Log in at
+          <a href="https://my.telegram.org/apps" target="_blank" rel="noopener">my.telegram.org</a>, open <b>API development
+          tools</b>, create one app for this site and copy <b>App api_id</b> and <b>App api_hash</b> here. Without it, every user
+          has to create their own app and paste its ID and hash. <span id="au-tg-state" class="status-pill off">not set</span>
+        </div>
+        <label>API ID</label><input id="au-tg-id" maxlength="20" inputmode="numeric" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="1234567" />
+        <label>API hash</label><input id="au-tg-hash" type="password" placeholder="leave empty to keep" autocomplete="new-password" />
+
+        <h4 style="margin-top:22px">Supabase (optional — extra logins)</h4>
+        <div class="sub">
+          Let Supabase Auth run the social logins and the passwordless e-mail links for you. Create a project at
+          <code>supabase.com</code>, enable the providers you want under <b>Authentication → Providers</b>, copy the
+          <b>Project URL</b> and the <b>anon / publishable key</b> from <b>Project Settings → API</b>, and add this
+          exact URL under <b>Authentication → URL Configuration → Redirect URLs</b>:
+          <br /><code id="au-sb-redirect"></code>
+          <br />The accounts stay yours — Supabase only proves the e-mail address, exactly like the Google / GitHub
+          buttons above. If you list a provider here that those buttons also offer (google, github), only the
+          Supabase button is shown, so nobody sees two buttons for the same login. See <code>docs/supabase.md</code>.
+          <br />Use the <b>Project URL</b> itself — <code>https://abcdefgh.supabase.co</code>. The URLs shown next to it
+          in the dashboard end in <code>/rest/v1</code> (Data API) or <code>/auth/v1</code>; those are API paths, not the
+          project URL, and pasting one makes Supabase answer “No API key found in request”.
+        </div>
+        <label>Project URL</label><input id="au-sb-url" maxlength="300" placeholder="https://abcdefgh.supabase.co" />
+        <div class="sub" id="au-sb-note" style="display:none"></div>
+        <label>Anon / publishable key</label><input id="au-sb-key" type="password" placeholder="leave empty to keep" autocomplete="new-password" />
+        <label>Login providers — buttons to show (comma-separated)</label>
+        <input id="au-sb-providers" maxlength="300" placeholder="google, github, discord, apple" />
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <input type="checkbox" id="au-sb-magic" style="width:auto" />
+          <span>Offer “e-mail me a sign-in link” (passwordless login)</span>
+        </label>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+          <button class="btn" id="au-sb-test">Test connection</button>
+          <span class="msg muted" id="au-sb-msg"></span>
+        </div>
+
+        <div class="kv" id="au-oauth-kv"></div>
+        <button class="btn primary" id="au-save">Save auth &amp; e-mail settings</button>
+      </div>
+    </section>
+
+    <!-- analytics (users online) -->
+    <section id="tab-analytics" class="hidden">
+      <div class="panel">
+        <h3>USERS ONLINE</h3>
+        <div class="sub">Distinct accounts with activity in each window. Heartbeats are recorded ~once per minute
+          per logged-in user, so this reflects real usage across the instance.</div>
+        <div class="kv" id="an-kv"></div>
+      </div>
+      <div class="panel">
+        <h3>ACTIVITY TREND</h3>
+        <div class="sub">Distinct active users per bucket for the selected range.</div>
+        <div class="range-row">
+          <button class="btn mini" data-range="hour">Last hour</button>
+          <button class="btn mini" data-range="day">Last day</button>
+          <button class="btn mini" data-range="week">Last week</button>
+          <button class="btn mini" data-range="month">Last month</button>
+          <button class="btn mini" data-range="year">Last year</button>
+          <button class="btn mini" data-range="all">All time</button>
+        </div>
+        <canvas id="an-chart" width="820" height="240"></canvas>
+        <div class="msg muted" id="an-msg"></div>
+      </div>
+    </section>
+
+    <!-- database -->
+    <section id="tab-db" class="hidden">
+      <div class="panel">
+        <h3>DATABASE</h3>
+        <div class="sub">SQLite (built into Node — free, no external service). The same database
+          file backs the admin panel AND the main site's user accounts (login with email).</div>
+        <div class="kv" id="db-kv"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="db-backup">Download DB file</button>
+        </div>
+        <div class="msg" id="db-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>TABLES</h3>
+        <div class="sub">Tables in the SQLite database and their row counts.</div>
+        <div class="kv" id="db-tables"></div>
+      </div>
+
+      <div class="panel">
+        <h3>REGISTERED USERS</h3>
+        <div class="sub">Accounts created on the main site (login with email). Switch a user's role to <b>premium</b> to lift the free-plan limits (10 workflows / 50 runs per day) for them — the same effect as a paid Pro subscription. Deactivating an account immediately ends its sessions and shows the user the reason at login. Deactivated users' workflows remain intact.</div>
+        <table class="tbl" id="db-users">
+          <thead><tr><th>Email</th><th>Name</th><th>Status</th><th>Role</th><th>Assigned workflows</th><th>Created</th><th>Last login</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="msg" id="db-users-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>SQL CONSOLE</h3>
+        <div class="sub">Run SQL against the database. SELECT returns rows; INSERT / UPDATE / DELETE
+          return the changed count. Use this to inspect or fix data, e.g. the <code>users</code> table.</div>
+        <textarea id="db-sql" spellcheck="false" placeholder="SELECT * FROM users LIMIT 20;"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="db-sql-run">Run SQL</button>
+          <span class="msg muted grow" id="db-sql-msg"></span>
+        </div>
+        <div id="db-sql-out" class="sql-out hidden"></div>
+      </div>
+    </section>
+
+    <!-- deployment -->
+    <section id="tab-deploy" class="hidden">
+      <div class="panel">
+        <h3>DEPLOYMENT — VPS / AWS / CLOUDFLARE / POSTGRESQL</h3>
+        <div class="sub" id="de-now"></div>
+        <label>PostgreSQL connection string (DATABASE_URL)</label>
+        <input id="de-dburl" spellcheck="false" placeholder="postgres://user:pass@host:5432/wflow" />
+        <div class="msg muted" id="de-dburl-hint"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="de-testdb">Test PostgreSQL connection</button>
+        </div>
+        <label style="margin-top:14px">Port</label>
+        <input id="de-port" spellcheck="false" placeholder="3001" />
+        <label style="margin-top:14px">Encryption key (BF_ENCRYPTION_KEY — 32 bytes as hex)</label>
+        <input id="de-enckey" type="password" placeholder="leave blank to keep current" />
+        <div class="msg muted" id="de-enckey-hint"></div>
+        <label class="chk" style="margin-top:14px">
+          <input type="checkbox" id="de-trustproxy" />
+          TRUST_PROXY=1 — app runs behind Cloudflare / Nginx / Caddy (real client IPs)
+        </label>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="de-save">Save to .env</button>
+        </div>
+        <div class="msg" id="de-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>AWS — EC2 DEPLOYMENT GUIDE</h3>
+        <div class="sub">Run this self-hosted app on an AWS EC2 instance. The same container
+          that runs locally runs on EC2; your data lives in <code>./data</code> on the instance disk.
+          Type your instance's IP into the <b>EC2 address</b> panel below to generate the exact
+          commands for your machine.</div>
+        <div class="guide">
+          <b>1. Launch the instance.</b>
+          <ol>
+            <li>EC2 → <b>Launch instance</b> → AMI <b>Ubuntu 24.04 LTS</b>, type
+              <b>t3.small</b> / <b>t3.medium</b> (2&nbsp;GB RAM is plenty), storage
+              <b>20&nbsp;GB gp3</b>.</li>
+            <li>Create a <b>key pair</b> and keep the <code>.pem</code> — you need it to SSH in.</li>
+            <li><b>Security group (inbound) — only open what you use:</b>
+              <ul>
+                <li><code>22</code> SSH — from <b>your</b> IP only.</li>
+                <li><code>443</code> (+ <code>80</code>) if Caddy/Nginx will terminate TLS.</li>
+                <li><code>3001</code> only if you want a direct <code>http://&lt;ip&gt;:3001</code> URL
+                  (skip it when you use the Cloudflare Tunnel panel below).</li>
+                <li><code>3002</code> — <b>never open</b>. The admin panel is reached via an SSH
+                  tunnel (below) or <code>ADMIN_ALLOWED_IPS</code>.</li>
+              </ul></li>
+            <li><b>Do not</b> attach an IAM instance role unless this app really needs AWS API
+              access; if you do, enable <b>IMDSv2</b> with hop limit 1 so only the instance itself
+              can read its metadata.</li>
+          </ol>
+          <b>2. First deploy.</b>
+          <ol>
+            <li>Connect:
+              <div class="cmdrow"><code>ssh -i your-key.pem ubuntu@&lt;instance-public-ip&gt;</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Install Docker (once):
+              <div class="cmdrow"><code>curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker ubuntu   # log out and back in</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Clone the project, copy the env template and start it:
+              <div class="cmdrow"><code>git clone &lt;your-repo-url&gt; wflow &amp;&amp; cd wflow
+cp .env.example .env
+nano .env   # see the checklist below
+docker compose up -d --build</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Check it is up: <code>curl -s http://&lt;ip&gt;:3001/api/nodes | head -c 120</code></li>
+          </ol>
+          <b>3. Env checklist for a public AWS instance</b> — add these to <code>.env</code>
+          (the <b>DEPLOYMENT settings</b> form at the top of this tab writes the same file if the
+          panel runs from the server):
+          <div class="cmdrow"><code>PORT=3001
+TRUST_PROXY=1
+BF_COOKIE_SECURE=1
+BF_ENCRYPTION_KEY=&lt;64 hex chars&gt;
+BF_ADMIN_USERNAME=myadmin
+BF_ADMIN_PASSWORD=&lt;long random password&gt;
+BF_ALLOW_REGISTER=0
+BF_BLOCK_PRIVATE_URLS=1
+# optional — hosted Postgres (e.g. RDS) instead of SQLite:
+# DATABASE_URL=postgres://wflow:&lt;pw&gt;@&lt;rds-endpoint&gt;:5432/wflow</code><button class="btn mini copy-cmd">COPY</button></div>
+          Generate the encryption key on the server:
+          <div class="cmdrow"><code>openssl rand -hex 32</code><button class="btn mini copy-cmd">COPY</button></div>
+          <b>4. HTTPS.</b>
+          <ol>
+            <li>Point your domain at the instance (Elastic IP / Route&nbsp;53) and run Caddy for
+              automatic TLS:
+              <div class="cmdrow"><code>docker run -d -p 80:80 -p 443:443 -v caddy-data:/data caddy caddy reverse-proxy --from flow.example.com --to localhost:3001</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>…or use the <b>Cloudflare Tunnel</b> panel below (no open ports at all). Either way
+              <code>TRUST_PROXY=1</code> (already in the checklist) keeps rate limiting on real IPs;
+              <code>BF_COOKIE_SECURE=1</code> keeps login cookies HTTPS-only.</li>
+          </ol>
+          <b>5. Data safety.</b>
+          <ol>
+            <li><code>./data</code> (workflows, agents, accounts, the SQLite DB and encrypted keys)
+              lives on the instance's EBS root volume — snapshot it, or move the database to RDS.</li>
+            <li>Back up <code>BF_ENCRYPTION_KEY</code> — losing it makes stored API keys unreadable.</li>
+            <li>Change the default admin credentials and keep the panel off the public internet
+              (step 1 above).</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>AWS INSTANCE ADDRESS</h3>
+        <div class="sub">Type the EC2 public IP or DNS name and the panel generates the exact
+          SSH / deploy / admin-tunnel commands for it. The address is remembered for next time.</div>
+        <label>EC2 public IP or hostname</label>
+        <input id="de-awshost" spellcheck="false" placeholder="ec2-1-2-3-4.eu-west-1.compute.amazonaws.com" />
+        <div class="cloud-cmds" id="de-aws-cmds"></div>
+        <div class="msg" id="de-awshost-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>AFTER YOU DEPLOY — ADMIN PANEL &amp; MAKING CHANGES</h3>
+        <div class="guide">
+          <b>Can I still use the admin panel?</b>
+          <ol>
+            <li>Yes. The admin panel is a separate process on its own port (<b>3002</b>) that runs
+              on the EC2 instance next to the app. You open it with an SSH tunnel from your PC
+              (generated in the panel above):
+              <div class="cmdrow"><code>ssh -i your-key.pem -L 3002:localhost:3002 ubuntu@&lt;instance-ip&gt;
+# then open http://localhost:3002 in your browser</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Alternative: keep the port reachable only from your IP — add a security-group rule
+              for <code>3002</code> from <b>your</b> IP and set <code>ADMIN_ALLOWED_IPS</code> to that IP in
+              <code>.env</code> (everything else gets 403).</li>
+            <li>Never expose port 3002 to the whole internet, and never keep the default admin
+              credentials (<b>Account</b> tab / <code>BF_ADMIN_USERNAME</code> + <code>BF_ADMIN_PASSWORD</code>).</li>
+          </ol>
+          <b>How do I change the site after it is deployed?</b>
+          <ol>
+            <li><b>Site text &amp; settings</b> — this admin panel: <b>Page setup</b> (name, tagline,
+              banner), <b>Cloud servers</b> (where workflows are stored), <b>Billing</b> (Stripe),
+              <b>Database</b> (users, SQL console), <b>Deploy</b> (domain, env, Postgres).</li>
+            <li><b>Users' content</b> — workflows and AI agents are edited in the app itself by the
+              accounts that own them, any time, from any browser.</li>
+            <li><b>Env / configuration</b> — edit <code>.env</code> (or the forms on this tab) and
+              restart:
+              <div class="cmdrow"><code>docker compose restart</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li><b>Code changes</b> (new node types, UI changes, fixes) — edit the source in your
+              repo, commit &amp; push, then on the server:
+              <div class="cmdrow"><code>git pull &amp;&amp; docker compose up -d --build</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li><b>Backups</b> — snapshot the instance's EBS volume regularly; the whole
+              <code>./data</code> folder is on it.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>POSTGRESQL</h3>
+        <div class="sub">PostgreSQL now has its own <b>PostgreSQL</b> tab (bundled Docker service, hosted
+          connection string, clear setup steps and a <b>Patroni</b> high-availability guide). This tab keeps only
+          the generic <code>.env</code> deployment values.</div>
+      </div>
+
+      <div class="panel">
+        <h3>CLOUDFLARE TUNNEL</h3>
+        <div class="sub">Type the domain you want to serve W flow on — the panel generates the exact
+          <code>cloudflared</code> commands to run on the VPS (tunnel keeps ports 80/443 closed). Requires
+          <code>cloudflared</code> on the server.</div>
+        <label>Domain (e.g. flow.example.com)</label>
+        <input id="de-domain" spellcheck="false" placeholder="flow.example.com" />
+        <div class="cloud-cmds" id="de-cloud-cmds"></div>
+        <div class="msg" id="de-domain-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>LANDING PAGE / SEO DOMAIN</h3>
+        <div class="sub">The marketing page (<code>/landing.html</code>) and the SEO files
+          (<code>/robots.txt</code>, <code>/sitemap.xml</code>) ship with <code>YOUR-DOMAIN</code>
+          placeholders in their canonical / og: tags, sitemap URLs and the robots Sitemap line. Enter the
+          public domain this install is served on and the server fills those placeholders in automatically
+          — no source edits. Leave empty to keep the placeholders until you go live.</div>
+        <label>Public domain (e.g. flow.example.com)</label>
+        <input id="de-sitedomain" spellcheck="false" placeholder="flow.example.com" />
+        <div class="pg-row">
+          <button class="btn primary" id="de-sitedomain-save">Save domain</button>
+        </div>
+        <div class="msg" id="de-sitedomain-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>SETUP GUIDE</h3>
+        <div class="guide">
+          <b>1. Get a server (VPS).</b>
+          <ol>
+            <li>Any Linux VPS works (2&nbsp;GB RAM is plenty). Install Docker:
+              <div class="cmdrow"><code>curl -fsSL https://get.docker.com | sh</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Clone the project, copy <code>.env.example</code> to <code>.env</code>, then start it:
+              <div class="cmdrow"><code>git clone &lt;your-repo-url&gt; wflow &amp;&amp; cd wflow
+cp .env.example .env
+docker compose up -d --build</code><button class="btn mini copy-cmd">COPY</button></div></li>
+          </ol>
+          <b>2. PostgreSQL (optional, recommended).</b>
+          <ol>
+            <li>Use the <b>PostgreSQL service</b> panel above (bundled compose service), or fill in a hosted
+              connection string (Supabase / Neon) in the form at the top of this tab and press <b>Test connection</b>.</li>
+            <li>Save to <code>.env</code>, then restart: <code>docker compose restart</code>. The schema is created automatically on first start.</li>
+            <li>Accounts, sessions, the admin panel and the SQL Query node all run against PostgreSQL once <code>DATABASE_URL</code> is set.</li>
+          </ol>
+          <b>3. Cloudflare.</b>
+          <ol>
+            <li>In Cloudflare DNS, point the domain at your server with proxy mode (orange cloud) on, or use the
+              <b>Cloudflare Tunnel</b> panel above (no open ports needed).</li>
+            <li>Option A — Tunnel (no open ports):
+              <div class="cmdrow"><code>cloudflared tunnel --url http://localhost:3001</code><button class="btn mini copy-cmd">COPY</button></div></li>
+            <li>Option B — reverse proxy: forward 443 → 3001 with Caddy / Nginx, then enable <b>Full (strict)</b> SSL in Cloudflare.</li>
+            <li>Enable <b>TRUST_PROXY</b> in the form above so rate limiting sees real client IPs, then restart.</li>
+          </ol>
+          <b>4. Security checklist.</b>
+          <ol>
+            <li>Set <code>BF_ENCRYPTION_KEY</code> and back it up (encrypts sensitive DB values, incl. workflow node credentials).</li>
+            <li>Change the default admin password (<b>Account</b> tab) and use strong login passwords.</li>
+            <li>Keep <code>./data</code> backed up — or rely on PostgreSQL backups instead.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- vps & docker -->
+    <section id="tab-vps" class="hidden">
+      <div class="panel">
+        <h3>VPS &amp; DOCKER — FAST DEPLOY</h3>
+        <div class="sub">
+          Point this panel at a fresh Linux VPS and your Git repository; it generates every command
+          needed to go from an empty server to a running app, plus the update steps. Values are remembered
+          for next time.
+        </div>
+        <div class="msg muted" style="margin:8px 0 12px">
+          <b>Server login data never goes into this panel.</b> The fields below only fill in the commands you copy —
+          nothing here connects to the server. For the STRATO VPS: put its IP (and optionally your SSH key path) into
+          <code>deploy/vps.env</code> on your computer and run <code>bash deploy/deploy.sh</code>; you type the root
+          password only into SSH itself. Full walkthrough: <code>docs/strato-vps.md</code>.
+        </div>
+        <div class="kv" id="vps-kv"></div>
+        <label>Git repository URL</label>
+        <input id="vps-repo" spellcheck="false" placeholder="https://github.com/you/wflow.git" />
+        <label>VPS host or IP</label>
+        <input id="vps-host" spellcheck="false" placeholder="203.0.113.10" />
+        <label>SSH user</label>
+        <input id="vps-user" spellcheck="false" placeholder="ubuntu" />
+        <label>Public domain (Nginx + TLS)</label>
+        <input id="vps-domain" spellcheck="false" placeholder="flow.example.com" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="vps-save">Save VPS settings</button>
+        </div>
+        <div class="msg" id="vps-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>GO LIVE — EXACT COMMANDS</h3>
+        <div class="sub">Run top to bottom on the VPS. The app listens on port 3001; Nginx terminates TLS
+          (see the <b>Nginx &amp; TLS</b> tab).</div>
+        <div class="cloud-cmds" id="vps-cmds"></div>
+      </div>
+
+      <div class="panel">
+        <h3>DEV VPS (STAGING)</h3>
+        <div class="sub">A separate, cheaper server for testing changes before production. It runs the same
+          image on a different port with its own database, so a bad deploy never reaches the live site.</div>
+        <label>Dev VPS host or IP</label>
+        <input id="dev-vps-host" spellcheck="false" placeholder="198.51.100.20" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="dev-vps-save">Save dev VPS</button>
+        </div>
+        <div class="msg" id="dev-vps-msg"></div>
+        <div class="cloud-cmds" id="dev-vps-cmds"></div>
+      </div>
+    </section>
+
+    <!-- postgresql -->
+    <section id="tab-postgres" class="hidden">
+      <div class="panel">
+        <h3>POSTGRESQL — WHICH MODE?</h3>
+        <div class="sub">
+          The app runs on the built-in SQLite file (zero setup) or on PostgreSQL. When
+          <code>DATABASE_URL</code> is set, accounts, sessions, the admin panel, SQL-stored workflows,
+          credentials, variables, data tables, executions and the events journal all live in PostgreSQL.
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Mode</th><th>When to use it</th><th>What you set</th></tr></thead>
+          <tbody>
+            <tr><td><b>SQLite (default)</b></td><td>Single server, simplest setup</td><td>Nothing</td></tr>
+            <tr><td><b>Bundled Docker service</b></td><td>One VPS, Postgres without a cloud account</td><td>Password below → Enable</td></tr>
+            <tr><td><b>Hosted Postgres</b></td><td>Managed backups / HA (Neon, Supabase, RDS, …)</td><td>Connection string below</td></tr>
+          </tbody>
+        </table>
+        <div class="kv" id="pgm-kv"></div>
+      </div>
+
+      <div class="panel">
+        <h3>OPTION A — BUNDLED POSTGRES SERVICE <span class="status-pill off" id="pg-pill">?</span></h3>
+        <div class="sub">
+          <code>docker-compose.yml</code> ships a commented-out <code>postgres</code> service. Enabling it
+          uncomments the service + <code>depends_on</code> and writes <code>DATABASE_URL</code> to
+          <code>.env</code>, so the app switches from SQLite to PostgreSQL on the next
+          <code>docker compose up -d</code> + restart. The schema is created automatically on first start.
+        </div>
+        <label>Postgres password (used by the compose service and DATABASE_URL)</label>
+        <input id="de-pgpass" type="text" style="-webkit-text-security:disc" autocomplete="off" spellcheck="false" placeholder="change-me (4–64 chars: letters, digits, . _ -)" />
+        <div class="pg-row">
+          <button class="btn primary" id="de-pgon">Enable PostgreSQL service</button>
+          <button class="btn" id="de-pgoff">Disable (back to SQLite)</button>
+        </div>
+        <div class="msg" id="de-pg-msg"></div>
+        <div class="guide" style="margin-top:10px">
+          <b>Verify it worked:</b>
+          <div class="cmdrow"><code>docker compose ps
+docker compose logs -f postgres</code><button class="btn mini copy-cmd">COPY</button></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>OPTION B — HOSTED POSTGRES</h3>
+        <div class="sub">Paste a connection string from Neon / Supabase / RDS / any Postgres 14+. Test it,
+          then save it — the schema is created automatically.</div>
+        <label>PostgreSQL connection string</label>
+        <input id="pg-url" spellcheck="false" placeholder="postgres://user:pass@host:5432/wflow?sslmode=require" />
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="pg-url-test">Test connection</button>
+          <button class="btn primary" id="pg-url-save">Save connection string</button>
+        </div>
+        <div class="msg" id="pg-url-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>PATRONI — HIGH-AVAILABILITY POSTGRES</h3>
+        <div class="sub">
+          Patroni turns PostgreSQL into a self-healing cluster with automatic failover — use it when one
+          database is not enough. It needs <b>3+ nodes</b> (etcd as the distributed config store) and a load
+          balancer such as HAProxy in front. Enter the first node's host to generate a working starting
+          configuration.
+        </div>
+        <label>Patroni node host (first node)</label>
+        <input id="pat-host" spellcheck="false" placeholder="10.0.0.11" />
+        <label>Replication / superuser password</label>
+        <input id="pat-pass" type="text" style="-webkit-text-security:disc" autocomplete="off" spellcheck="false" placeholder="a long random password" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="pat-save">Save Patroni settings</button>
+        </div>
+        <div class="msg" id="pat-msg"></div>
+        <div class="cloud-cmds" id="pat-cmds"></div>
+        <div class="guide">
+          <b>Point the app at the cluster.</b> Connect through HAProxy (or the leader node) using the
+          connection string from <b>Option B</b> above:
+          <div class="cmdrow" id="pat-dburl-row"><code>postgres://wflow:&lt;password&gt;@&lt;haproxy-host&gt;:5000/wflow?sslmode=require</code><button class="btn mini copy-cmd">COPY</button></div>
+          Restoring a Patroni cluster is done with <code>pg_restore</code> / <code>pg_basebackup</code> on a
+          node — the <b>Backups</b> tab keeps logical dumps you can feed to those tools.
+        </div>
+      </div>
+    </section>
+
+    <!-- kubernetes -->
+    <section id="tab-kubernetes" class="hidden">
+      <div class="panel">
+        <h3>KUBERNETES (K8s) DEPLOY</h3>
+        <div class="sub">
+          Run W flow on a Kubernetes cluster with a Deployment, Service, Ingress and a persistent volume for
+          <code>./data</code>. Ideal when you already have a cluster or want rolling updates without downtime.
+        </div>
+        <label>Cluster / context name (optional)</label>
+        <input id="k8s-host" spellcheck="false" placeholder="my-cluster" />
+        <label>Container registry / image prefix</label>
+        <input id="k8s-registry" spellcheck="false" placeholder="ghcr.io/your-user" />
+        <label>Public domain (Ingress host)</label>
+        <input id="k8s-domain" spellcheck="false" placeholder="flow.example.com" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="k8s-save">Save Kubernetes settings</button>
+        </div>
+        <div class="msg" id="k8s-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>DEPLOY TO THE CLUSTER</h3>
+        <div class="sub">Build and push the image, then apply the generated manifests. Requires
+          <code>kubectl</code> and <code>docker</code> on your machine.</div>
+        <div class="cloud-cmds" id="k8s-cmds"></div>
+        <div class="guide">
+          <b>Notes.</b>
+          <ol>
+            <li>The manifests mount a <b>PersistentVolumeClaim</b> at <code>/app/data</code> so the SQLite
+              database, credentials and files survive pod restarts.</li>
+            <li>For multi-replica production, point <code>DATABASE_URL</code> at managed Postgres (or Patroni —
+              see the PostgreSQL tab) instead of SQLite and raise <code>replicas</code>.</li>
+            <li>TLS is handled by the Ingress controller — install <b>cert-manager</b> and keep the
+              <code>cert-manager.io/cluster-issuer</code> annotation shown in the generated manifest.</li>
+            <li>Port 3002 (the admin panel) is intentionally <b>not</b> exposed by the Service — reach it with
+              <code>kubectl port-forward</code>.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- nginx & tls -->
+    <section id="tab-nginx" class="hidden">
+      <div class="panel">
+        <h3>NGINX &amp; TLS (HTTPS)</h3>
+        <div class="sub">
+          Terminate HTTPS with Nginx and a free Let's Encrypt certificate. Nginx forwards to the app on
+          <code>127.0.0.1:3001</code>; run the app with <code>TRUST_PROXY=1</code> (Deploy tab) so rate
+          limiting sees real client IPs.
+        </div>
+        <label>Domain</label>
+        <input id="ng-domain" spellcheck="false" placeholder="flow.example.com" />
+        <label>VPS host or IP (for the DNS hint)</label>
+        <input id="ng-host" spellcheck="false" placeholder="203.0.113.10" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="ng-save">Save Nginx settings</button>
+        </div>
+        <div class="msg" id="ng-msg"></div>
+      </div>
+      <div class="panel">
+        <h3>SET UP NGINX + CERTBOT</h3>
+        <div class="cloud-cmds" id="ng-cmds"></div>
+        <div class="guide">
+          <b>Checklist.</b>
+          <ol>
+            <li>DNS: an <b>A record</b> for the domain must point at the VPS host above <b>before</b> running
+              certbot, or the certificate request fails.</li>
+            <li>Firewall: allow <code>80</code> and <code>443</code>; keep <code>3001</code> closed to the
+              public (Nginx proxies to it locally) and never expose <code>3002</code>.</li>
+            <li>Renewal: certbot installs a systemd timer automatically — check it with
+              <code>systemctl list-timers | grep certbot</code>.</li>
+            <li>After any change run <code>nginx -t &amp;&amp; systemctl reload nginx</code>.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- alerts -->
+    <section id="tab-alerts" class="hidden">
+      <div class="panel">
+        <h3>ALERTS &amp; NOTIFICATIONS</h3>
+        <div class="sub">
+          The panel watches the main server's health endpoint and records an alert when it stops answering or
+          reports a problem. Add an e-mail address to also receive every new alert by mail (uses the SMTP
+          settings from the <b>Auth &amp; e-mail</b> tab).
+        </div>
+        <div class="kv" id="al-kv"></div>
+        <label>Notification e-mail</label>
+        <input id="al-email" maxlength="200" placeholder="ops@example.com" />
+        <label class="chk" style="margin-top:12px">
+          <input type="checkbox" id="al-enabled" />
+          <span>Send alert e-mails — off still records alerts in this panel, it just does not mail them.</span>
+        </label>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="al-save">Save alert settings</button>
+          <button class="btn" id="al-test">Send test alert</button>
+        </div>
+        <div class="msg" id="al-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>RECENT ALERTS</h3>
+        <div class="sub">Newest first. Unresolved alerts are deduplicated — the count shows how many times the
+          same problem recurred.</div>
+        <table class="tbl" id="al-table">
+          <thead><tr><th>Level</th><th>Source</th><th>Title</th><th>Details</th><th>Count</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="msg" id="al-table-msg"></div>
+      </div>
+    </section>
+
+    <!-- backups -->
+    <section id="tab-teams" class="hidden">
+      <div class="panel">
+        <h3>TEAM PLANS</h3>
+        <div class="sub">
+          Custom plans asked for on the Pro page: the buyer picks how many accounts the plan covers. A request
+          can only be bought after you approve it here with a monthly price (the buyer is e-mailed either way).
+          Paid by card it runs with the buyer's Stripe subscription; paid by invoice, mark it paid for some
+          months. The buyer becomes the admin of their self-hosted copy; in the cloud every listed account is Pro.
+          New requests are e-mailed to <code id="tm-notify">—</code>.
+        </div>
+        <table class="tbl" id="tm-table">
+          <thead><tr><th>Requested</th><th>Account</th><th>Accounts</th><th>Message</th><th>Status</th><th>Price / month (€)</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="msg" id="tm-msg"></div>
+      </div>
+    </section>
+
+    <section id="tab-backups" class="hidden">
+      <div class="panel">
+        <h3>BACKUPS</h3>
+        <div class="sub">
+          A backup snapshots the whole <code>./data</code> folder — the SQL database (SQLite file or Postgres
+          logical dump), the events journal, every JSON store, uploaded files and the encryption keyfile — into
+          <code>./data/backups/</code> and packs it as <code>.tar.gz</code>. The scheduler runs it automatically
+          when enabled.
+        </div>
+        <div class="kv" id="bk-kv"></div>
+        <label class="chk" style="margin-top:12px">
+          <input type="checkbox" id="bk-enabled" />
+          <span>Run automatic backups</span>
+        </label>
+        <label>Every … hours</label>
+        <input id="bk-interval" type="number" min="1" max="720" placeholder="24" />
+        <label>Keep newest … snapshots</label>
+        <input id="bk-keep" type="number" min="1" max="365" placeholder="7" />
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="bk-save">Save backup settings</button>
+          <button class="btn" id="bk-run">Back up now</button>
+        </div>
+        <div class="msg" id="bk-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>AVAILABLE BACKUPS</h3>
+        <div class="sub">Download keeps a copy off-server. Restore overwrites <code>./data</code> and needs a
+          restart — SQLite only (use pg_restore / Patroni for PostgreSQL).</div>
+        <table class="tbl" id="bk-table">
+          <thead><tr><th>Name</th><th>Kind</th><th>Created</th><th>Size</th><th>Engine</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="msg" id="bk-table-msg"></div>
+      </div>
+    </section>
+
+    <!-- journal -->
+    <section id="tab-journal" class="hidden">
+      <div class="panel">
+        <h3>DATABASE EVENTS JOURNAL</h3>
+        <div class="sub">
+          Every contact with the database through the app is recorded here and flushed to the
+          <code>db_events</code> table in batches — so it is itself backed up with the database. Use it to
+          audit what touched the database, when, and how long each call took. Secrets are never stored;
+          argument summaries are redacted.
+        </div>
+        <div class="kv" id="jr-kv"></div>
+        <div class="row" style="margin-top:12px">
+          <label for="jr-days" style="margin:0">Delete entries older than … days</label>
+          <input id="jr-days" type="number" min="1" max="365" value="7" style="width:90px" />
+          <button class="btn" id="jr-prune">Prune</button>
+          <button class="btn" id="jr-refresh">Refresh</button>
+        </div>
+        <div class="msg" id="jr-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h3>EVENTS</h3>
+        <div class="row">
+          <label for="jr-source" style="margin:0">Source</label>
+          <select id="jr-source" style="width:auto">
+            <option value="">all</option>
+            <option value="server">server</option>
+            <option value="admin">admin</option>
+          </select>
+          <label for="jr-op" style="margin:0">Operation contains</label>
+          <input id="jr-op" spellcheck="false" placeholder="e.g. insert" style="width:160px" />
+          <button class="btn" id="jr-filter">Apply</button>
+        </div>
+        <table class="tbl" id="jr-table" style="margin-top:12px">
+          <thead><tr><th>Time</th><th>Source</th><th>Operation</th><th>Target</th><th>Detail</th><th>Took</th><th>OK</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="msg" id="jr-table-msg"></div>
+      </div>
+    </section>
+
+    <!-- security -->
+    <section id="tab-security" class="hidden">
+      <div class="panel">
+        <h3>SECURITY POSTURE</h3>
+        <div class="kv" id="sec-kv"></div>
+        <div class="sub" style="margin-top:14px">Keep this admin server on its own port and never expose it publicly unless routed behind a reverse proxy with HTTPS.</div>
+      </div>
+    </section>
+
+    <!-- account -->
+    <section id="tab-account" class="hidden">
+      <div class="panel">
+        <h3>ACCOUNT SETTINGS</h3>
+        <div class="sub">Your admin credentials. Leave the password fields empty to keep the current password.</div>
+        <label>Username</label><input id="ac-user" maxlength="40" autocomplete="username" />
+        <label>Current password</label><input id="ac-cur" type="password" autocomplete="current-password" />
+        <label>New password (min 8 chars)</label><input id="ac-next" type="password" autocomplete="new-password" />
+        <button class="btn danger" id="ac-save" style="margin-top:12px">Save account</button>
+        <div class="msg" id="ac-msg"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="foot">
+    This admin site is separate from the main self-hosted builder. It is launched only by
+    <b>admin.bat</b> on its own port and cannot be opened from the main website.
+    All management actions require login and a valid CSRF token. Do not expose this port publicly.
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let csrf = "";
+
+  // The CSRF token travels as a same-site cookie (not HttpOnly) and is ALSO sent
+  // in the X-CSRF-Token response header by the server, which is authoritative.
+  // Read the LAST occurrence of bf_csrf from document.cookie so a stale earlier
+  // token (if a duplicate cookie is somehow present) never wins.
+  function readCsrf() {
+    const parts = document.cookie.split("; ").filter((c) => c.startsWith("bf_csrf="));
+    if (parts.length) {
+      const m = parts[parts.length - 1];
+      csrf = m.slice("bf_csrf=".length);
+    }
+    return csrf;
+  }
+
+  // Apply a fresh token returned by the server (header is authoritative; fall
+  // back to the Set-Cookie value) to keep the request header in sync.
+  function applyToken(headerOrValue) {
+    if (!headerOrValue) return;
+    csrf = headerOrValue;
+    // keep document.cookie in sync when possible. First expire any stale
+    // bf_csrf cookies (they can linger if Max-Age differs and pile up as
+    // duplicates, which then desync the server-read value from ours), then set
+    // the single canonical cookie with a fixed expiry so only one ever exists.
+    try {
+      document.cookie = "bf_csrf=; path=/; SameSite=Strict; Max-Age=0";
+      document.cookie = "bf_csrf=" + headerOrValue + "; path=/; SameSite=Strict; Max-Age=86400";
+    } catch {}
+  }
+
+  async function api(method, url, body) {
+    if (!csrf) readCsrf();
+    const headers = { "Content-Type": "application/json" };
+    if (csrf) headers["X-CSRF-Token"] = csrf;
+    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    let data = {};
+    try { data = await res.json(); } catch {}
+    // Authoritative token from the response header, then fall back to Set-Cookie.
+    const headerTok = res.headers.get("x-csrf-token");
+    if (headerTok) {
+      applyToken(headerTok);
+    } else {
+      const setCookies = res.headers.get("set-cookie");
+      if (setCookies) {
+        const m = setCookies.match(/bf_csrf=([^;]+)/);
+        if (m) applyToken(decodeURIComponent(m[1]));
+      }
+    }
+    return { status: res.status, data };
+  }
+
+  let currentUsername = "";
+  async function refreshSession() {
+    const { data } = await api("GET", "/api/admin/me");
+    if (data.authed) {
+      currentUsername = data.username || "";
+      $("login").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      $("who").textContent = "Signed in as " + data.username;
+      $("logout").classList.remove("hidden");
+      return true;
+    }
+    $("login").classList.remove("hidden");
+    $("app").classList.add("hidden");
+    $("logout").classList.add("hidden");
+    return false;
+  }
+
+  async function doLogin() {
+    const msg = $("li-msg");
+    const { status, data } = await api("POST", "/api/admin/login", {
+      username: $("li-user").value.trim(),
+      password: $("li-pass").value,
+    });
+    if (status < 300) { msg.className = "msg ok"; msg.textContent = "Logged in."; refreshSession(); }
+    else { msg.className = "msg err"; msg.textContent = data.error || "Login failed."; }
+  }
+
+  // ---- tabs ----
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x === t));
+      document.querySelectorAll("section[id^=tab-]").forEach((s) => s.classList.add("hidden"));
+      $("tab-" + t.dataset.tab).classList.remove("hidden");
+      load(t.dataset.tab);
+    });
+  });
+
+  function load(tab) {
+    if (tab === "cloud") loadCloud();
+    if (tab === "billing") loadBilling();
+    if (tab === "legal") loadLegal();
+    if (tab === "seo") loadSeo();
+    if (tab === "auth") loadAuthSettings();
+    if (tab === "analytics") loadAnalytics();
+    if (tab === "db") loadDb();
+    if (tab === "deploy") loadDeploy();
+    if (tab === "vps") loadVps();
+    if (tab === "postgres") loadPostgres();
+    if (tab === "kubernetes") loadKubernetes();
+    if (tab === "nginx") loadNginx();
+    if (tab === "alerts") loadAlerts();
+    if (tab === "backups") loadBackups();
+    if (tab === "teams") loadTeams();
+    if (tab === "journal") loadJournal();
+    if (tab === "security") loadSecurity();
+    if (tab === "account") loadAccount();
+  }
+
+  function loadAccount() {
+    $("ac-user").value = currentUsername;
+    $("ac-cur").value = "";
+    $("ac-next").value = "";
+    $("ac-msg").className = "msg";
+    $("ac-msg").textContent = "";
+  }
+
+  async function loadCloud() {
+    const { data } = await api("GET", "/api/admin/cloud");
+    $("cl-provider").value = data.provider || "";
+    $("cl-apirul").value = data.apiUrl || "";
+    $("cl-host").value = data.host || "";
+    $("cl-token").value = "";
+    const st = data.storageMode === "database" ? "st-db" : "st-local";
+    $(st).checked = true;
+    $("st-local-count").textContent = data.localWorkflowCount ? "(" + data.localWorkflowCount + " on device)" : "";
+    $("st-db-count").textContent = data.dbWorkflowCount ? "(" + data.dbWorkflowCount + " in DB)" : "";
+    $("st-msg").className = "msg";
+    $("st-msg").textContent = "";
+  }
+  async function loadDb() {
+    const { data } = await api("GET", "/api/admin/db");
+    const rows = [
+      ["Engine", "<code>" + esc(data.engine) + "</code>"],
+      ["Encrypted at rest", data.encryptedAtRest ? "YES (AES-256-GCM)" : "NO"],
+      ["File", "<code>" + esc(data.path) + "</code>"],
+      ["Size", data.sizeBytes + " bytes"],
+      ["Admins", data.counts.admins],
+      ["Registered users", data.counts.users],
+      ["Active admin sessions", data.counts.sessions],
+      ["Active user sessions", data.counts.userSessions],
+    ];
+    $("db-kv").innerHTML = rows.map(([k, v]) => "<b>" + esc(k) + "</b><span>" + v + "</span>").join("");
+    // The download button only makes sense for the SQLite file backend — hide
+    // it when the database lives in PostgreSQL (RDS etc.).
+    $("db-backup").style.display = /postgres/i.test(String(data.engine || "")) ? "none" : "";
+    // tables + row counts
+    const tables = Object.entries(data.tables || {});
+    $("db-tables").innerHTML = tables.length
+      ? tables.map(([t, c]) => "<b>" + esc(t) + "</b><span>" + c + " row" + (c === 1 ? "" : "s") + "</span>").join("")
+      : "<b>—</b><span>no tables yet</span>";
+    // registered users
+    const { data: users } = await api("GET", "/api/admin/users");
+    const tb = document.querySelector("#db-users tbody");
+    tb.innerHTML = users.length
+      ? users.map((u) => {
+          const ids = u.workflowIds || [];
+          const wfCell = ids.length
+            ? "<span title='" + esc(ids.map((i) => i.slice(0, 8)).join(", ")) + "'>" + ids.length + " workflow" + (ids.length === 1 ? "" : "s") + "</span>"
+            : "<span style='color:var(--faint)'>none</span>";
+          const active = (u.status || "active") === "active";
+          const role = u.role || "user";
+          const statusCell = "<span class='status-pill " + (active ? "on" : "off") + "'>" + esc(active ? "ACTIVE" : "DEACTIVATED") + "</span>";
+          const premium = role === "pro_user";
+          const roleCell = (premium
+            ? "<span class='status-pill on' style='margin-right:6px' title='This account has the premium (Pro) plan'>PREMIUM</span>"
+            : "") +
+            "<select class='mini-user-role' data-role='" + esc(u.id) + "' aria-label='Role for " + esc(u.email) + "'>" +
+            ["user", "pro_user", "admin"].map((r) => "<option value='" + r + "'" + (role === r ? " selected" : "") + ">" + (r === "pro_user" ? "premium" : r) + "</option>").join("") + "</select>";
+          const toggle = active
+            ? "<button class='btn mini danger' data-deactivate='" + esc(u.id) + "' data-email='" + esc(u.email) + "'>Deactivate</button>"
+            : "<button class='btn mini' data-reactivate='" + esc(u.id) + "'>Reactivate</button>";
+          return (
+            "<tr><td>" + esc(u.email) + "</td><td>" + esc(u.name || "—") + "</td><td>" + statusCell + "</td><td>" + roleCell + "</td><td>" + wfCell + "</td>" +
+            "<td>" + esc((u.created_at || "").slice(0, 16).replace("T", " ")) + "</td>" +
+            "<td>" + esc((u.last_login || "—").slice(0, 16).replace("T", " ")) + "</td>" +
+            "<td><div class='row' style='gap:5px;flex-wrap:wrap'>" + toggle + "<button class='btn mini danger' data-del='" + esc(u.id) + "'>Delete</button></div></td></tr>"
+          );
+        }).join("")
+      : "<tr><td colspan='8' style='color:var(--faint)'>No accounts yet — register on the main site to create one.</td></tr>";
+    document.querySelectorAll("#db-users [data-del]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        if (!window.confirm("Delete this user account? Their sessions end immediately.")) return;
+        const { status, data: r } = await api("POST", "/api/admin/users/delete", { id: b.dataset.del });
+        const m = $("db-users-msg");
+        m.className = "msg " + (status < 300 ? "ok" : "err");
+        m.textContent = status < 300 ? "Deleted " + r.email : (r.error || "Delete failed.");
+        loadDb();
+      })
+    );
+    document.querySelectorAll("#db-users [data-deactivate]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const reason = window.prompt("Why is this account being deactivated?", "Account access was disabled by an administrator.");
+        if (reason === null) return;
+        const { status, data: r } = await api("POST", "/api/admin/users/status", { id: b.dataset.deactivate, status: "deactivated", reason });
+        const m = $("db-users-msg");
+        m.className = "msg " + (status < 300 ? "ok" : "err");
+        m.textContent = status < 300 ? "Account deactivated." : (r.error || "Could not deactivate account.");
+        loadDb();
+      })
+    );
+    document.querySelectorAll("#db-users [data-reactivate]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const { status, data: r } = await api("POST", "/api/admin/users/status", { id: b.dataset.reactivate, status: "active" });
+        const m = $("db-users-msg");
+        m.className = "msg " + (status < 300 ? "ok" : "err");
+        m.textContent = status < 300 ? "Account reactivated." : (r.error || "Could not reactivate account.");
+        loadDb();
+      })
+    );
+    document.querySelectorAll("#db-users [data-role]").forEach((select) =>
+      select.addEventListener("change", async () => {
+        const { status, data: r } = await api("POST", "/api/admin/users/role", { id: select.dataset.role, role: select.value });
+        const m = $("db-users-msg");
+        m.className = "msg " + (status < 300 ? "ok" : "err");
+        m.textContent = status < 300 ? "Role updated." : (r.error || "Could not update role.");
+        if (status >= 300) loadDb();
+      })
+    );
+  }
+  async function loadDeploy() {
+    const { data } = await api("GET", "/api/admin/deploy");
+    let now = "Current engine: <b>" + esc(data.engine) + "</b>";
+    if (data.databaseUrlSet) now += " · DATABASE_URL set (<code>" + esc(data.databaseUrlMasked) + "</code>)";
+    if (data.trustProxy) now += " · TRUST_PROXY=1";
+    if (data.encryptionKeySet) now += " · encryption key set";
+    if (!data.envFileExists) now += " · no .env file yet — defaults are used";
+    $("de-now").innerHTML = now;
+    $("de-dburl").value = "";
+    $("de-dburl").placeholder = data.databaseUrlMasked || "postgres://user:pass@host:5432/wflow";
+    $("de-dburl-hint").textContent = data.databaseUrlSet
+      ? "A DATABASE_URL is set (shown above) — leave empty to keep it, or type a new one to replace it."
+      : "Leave empty to keep the built-in SQLite (zero setup).";
+    $("de-port").value = data.port || "3001";
+    $("de-trustproxy").checked = !!data.trustProxy;
+    $("de-enckey").value = "";
+    $("de-enckey-hint").textContent = data.encryptionKeySet
+      ? "Encryption key is set — leave blank to keep it."
+      : "Optional — if unset, a key is auto-generated in ./data/.secret.";
+    $("de-msg").className = "msg";
+    $("de-msg").textContent = "";
+    // Cloudflare domain + generated commands
+    $("de-domain").value = data.cloudflareDomain || "";
+    renderCloudCmds(data.cloudflareDomain || "");
+    $("de-domain-msg").className = "msg";
+    $("de-domain-msg").textContent = "";
+    // AWS EC2 address + generated commands
+    $("de-awshost").value = data.awsHost || "";
+    renderAwsCmds(data.awsHost || "");
+    $("de-awshost-msg").className = "msg";
+    $("de-awshost-msg").textContent = "";
+    // Landing page / SEO domain
+    $("de-sitedomain").value = data.siteDomain || "";
+    $("de-sitedomain-msg").className = "msg";
+    $("de-sitedomain-msg").textContent = "";
+  }
+
+  // ---- shared helpers for the ops / observability panels ----
+  function fmtBytes(n) {
+    n = Number(n) || 0;
+    if (n < 1024) return n + " B";
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+    if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + " MB";
+    return (n / 1024 / 1024 / 1024).toFixed(2) + " GB";
+  }
+  function fmtTs(v) {
+    if (!v) return "—";
+    const d = new Date(typeof v === "number" ? v : String(v));
+    if (isNaN(d.getTime())) return String(v);
+    return d.toISOString().slice(0, 19).replace("T", " ");
+  }
+  function kvRows(pairs) {
+    return pairs.map(([k, v]) => "<b>" + esc(k) + "</b><span>" + v + "</span>").join("");
+  }
+  async function loadOps() {
+    const { data } = await api("GET", "/api/admin/ops");
+    return data || {};
+  }
+  async function saveOps(patch, msgId) {
+    const m = msgId ? $(msgId) : null;
+    if (m) { m.className = "msg muted"; m.textContent = "Saving…"; }
+    const { status, data } = await api("POST", "/api/admin/ops", patch);
+    if (m) {
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? "Saved." : (data.error || "Save failed.");
+    }
+    return status < 300;
+  }
+  function renderSteps(boxId, steps) {
+    const box = $(boxId);
+    if (!box) return;
+    box.innerHTML = steps
+      .map(([label, cmd]) =>
+        "<div class='sub' style='margin:8px 0 2px'>" + esc(label) + "</div>" +
+        "<div class='cmdrow'><code>" + esc(cmd) + "</code><button class='btn mini copy-cmd'>COPY</button></div>")
+      .join("");
+    bindCopyButtons(box);
+  }
+
+  // ---- VPS & Docker (+ dev VPS) ----
+  async function loadVps() {
+    const data = await loadOps();
+    $("vps-repo").value = data.repoUrl || "";
+    $("vps-host").value = data.vpsHost || "";
+    $("vps-user").value = data.vpsUser || "";
+    $("vps-domain").value = data.domain || "";
+    $("dev-vps-host").value = data.devVpsHost || "";
+    $("vps-kv").innerHTML = kvRows([
+      ["Database engine", "<code>" + esc(data.engine || "sqlite") + "</code>"],
+      ["App port", "<code>" + esc(data.port || "3001") + "</code>"],
+    ]);
+    $("vps-msg").className = "msg"; $("vps-msg").textContent = "";
+    $("dev-vps-msg").className = "msg"; $("dev-vps-msg").textContent = "";
+    renderVpsCmds();
+    renderDevVpsCmds();
+  }
+  function renderVpsCmds() {
+    const user = ($("vps-user").value.trim() || "ubuntu");
+    const host = $("vps-host").value.trim();
+    const repo = ($("vps-repo").value.trim() || "<your-repo-url>");
+    const domain = $("vps-domain").value.trim();
+    if (!host) { $("vps-cmds").innerHTML = "<div class='sub' style='margin:0'>Enter the VPS host above to generate the commands.</div>"; return; }
+    renderSteps("vps-cmds", [
+      ["1. Connect to the server", "ssh " + user + "@" + host],
+      ["2. Install Docker (once)", "curl -fsSL https://get.docker.com | sh\nsudo usermod -aG docker " + user + "   # log out and back in"],
+      ["3. Clone & configure", "git clone " + repo + " wflow && cd wflow\ncp .env.example .env\nnano .env   # set BF_ENCRYPTION_KEY, a strong admin password and TRUST_PROXY=1"],
+      ["4. Generate an encryption key", "openssl rand -hex 32"],
+      ["5. Start the app", "docker compose up -d --build"],
+      ["6. Health check", "curl -s http://127.0.0.1:3001/api/health"],
+      ["7. HTTPS", (domain ? domain + " — run the Nginx & TLS tab steps" : "set a domain, then run the Nginx & TLS tab steps")],
+      ["Update after a code change", "cd wflow && git pull && docker compose up -d --build"],
+      ["Logs / restart", "docker compose logs -f --tail=100\ndocker compose restart"],
+    ]);
+  }
+  function renderDevVpsCmds() {
+    const user = ($("vps-user").value.trim() || "ubuntu");
+    const host = $("dev-vps-host").value.trim();
+    const repo = ($("vps-repo").value.trim() || "<your-repo-url>");
+    const domain = $("vps-domain").value.trim() || "example.com";
+    if (!host) { $("dev-vps-cmds").innerHTML = "<div class='sub' style='margin:0'>Add the dev VPS host above to generate the staging commands.</div>"; return; }
+    renderSteps("dev-vps-cmds", [
+      ["1. Connect to the dev VPS", "ssh " + user + "@" + host],
+      ["2. Install Docker (once)", "curl -fsSL https://get.docker.com | sh\nsudo usermod -aG docker " + user],
+      ["3. Deploy a separate copy", "git clone " + repo + " wflow-dev && cd wflow-dev\ncp .env.example .env\n# give it its own ports + database in .env and docker-compose.yml:\n#   PORT=3101    BF_DB_PATH=./data/dev-admin.db    \"3101:3101\"\ndocker compose -p wflow-dev up -d --build"],
+      ["4. Point a staging domain at it (optional)", "staging." + domain],
+      ["5. Run the tests before promoting", "npm ci && npm test"],
+      ["6. Promote to production", "cd ../wflow && git pull && docker compose up -d --build"],
+    ]);
+  }
+
+  // ---- PostgreSQL (+ Patroni) ----
+  async function loadPostgres() {
+    const { data } = await api("GET", "/api/admin/deploy");
+    const pg = $("pg-pill");
+    pg.textContent = data.postgresServiceEnabled ? "ENABLED" : "DISABLED";
+    pg.className = "status-pill " + (data.postgresServiceEnabled ? "on" : "off");
+    $("pgm-kv").innerHTML = kvRows([
+      ["Current engine", "<code>" + esc(data.engine || "sqlite") + "</code>"],
+      ["DATABASE_URL", data.databaseUrlSet ? "set (<code>" + esc(data.databaseUrlMasked || "••••") + "</code>)" : "not set — SQLite is in use"],
+      ["Bundled Postgres service", data.postgresServiceEnabled ? "enabled" : "disabled"],
+    ]);
+    $("de-pgpass").value = "";
+    $("de-pg-msg").className = "msg"; $("de-pg-msg").textContent = "";
+    $("pg-url").value = "";
+    $("pg-url").placeholder = data.databaseUrlMasked || "postgres://user:pass@host:5432/wflow?sslmode=require";
+    $("pg-url-msg").className = "msg"; $("pg-url-msg").textContent = "";
+    const ops = await loadOps();
+    $("pat-host").value = ops.patroniHost || "";
+    $("pat-pass").value = "";
+    $("pat-msg").className = "msg"; $("pat-msg").textContent = "";
+    renderPatroniCmds();
+  }
+  function renderPatroniCmds() {
+    const host = $("pat-host").value.trim();
+    const pass = $("pat-pass").value.trim() || "change-me";
+    if (!host) { $("pat-cmds").innerHTML = "<div class='sub' style='margin:0'>Enter a Patroni node host above to generate the configuration.</div>"; return; }
+    const yml = [
+      "scope: wflow",
+      "namespace: /service/",
+      "name: pg1",
+      "restapi:",
+      "  listen: 0.0.0.0:8008",
+      "  connect_address: " + host + ":8008",
+      "etcd3:",
+      "  hosts: " + host + ":2379",
+      "bootstrap:",
+      "  dcs:",
+      "    ttl: 30",
+      "    loop_wait: 10",
+      "    retry_timeout: 10",
+      "    maximum_lag_on_failover: 1048576",
+      "    postgresql:",
+      "      use_pg_rewind: true",
+      "      parameters:",
+      "        wal_level: replica",
+      "        hot_standby: 'on'",
+      "        max_wal_senders: 10",
+      "        max_replication_slots: 10",
+      "  initdb:",
+      "    - encoding: UTF8",
+      "    - data-checksums",
+      "  pg_hba:",
+      "    - host replication replicator 127.0.0.1/32 scram-sha-256",
+      "    - host all all 0.0.0.0/0 scram-sha-256",
+      "postgresql:",
+      "  listen: 0.0.0.0:5432",
+      "  connect_address: " + host + ":5432",
+      "  data_dir: /var/lib/postgresql/data",
+      "  authentication:",
+      "    replication:",
+      "      username: replicator",
+      "      password: " + pass,
+      "    superuser:",
+      "      username: postgres",
+      "      password: " + pass,
+    ].join("\n");
+    renderSteps("pat-cmds", [
+      ["1. Install etcd + Patroni + PostgreSQL (on every node)", "sudo apt-get update\nsudo apt-get install -y etcd-server patroni postgresql"],
+      ["2. Write /etc/patroni.yml (change name + connect_address per node)", "sudo tee /etc/patroni.yml >/dev/null <<'EOF'\n" + yml + "\nEOF"],
+      ["3. Start the cluster", "sudo systemctl enable --now etcd\nsudo systemctl enable --now patroni"],
+      ["4. Check the cluster state", "patronictl -c /etc/patroni.yml list"],
+      ["5. Test a failover", "patronictl -c /etc/patroni.yml switchover --master pg1 --candidate pg2"],
+      ["6. Add HAProxy in front (write endpoint)", "sudo apt-get install -y haproxy\n# see the Patroni docs for a primary/replica HAProxy backend on :5000 / :5001"],
+    ]);
+    const code = $("pat-dburl-row") && $("pat-dburl-row").querySelector("code");
+    if (code) code.textContent = "postgres://wflow:" + pass + "@" + host + ":5000/wflow?sslmode=require";
+  }
+
+  // ---- Kubernetes ----
+  async function loadKubernetes() {
+    const ops = await loadOps();
+    $("k8s-host").value = ops.k8sHost || "";
+    $("k8s-registry").value = ops.registry || "";
+    $("k8s-domain").value = ops.k8sDomain || ops.domain || "";
+    $("k8s-msg").className = "msg"; $("k8s-msg").textContent = "";
+    renderK8sCmds();
+  }
+  function renderK8sCmds() {
+    const registry = $("k8s-registry").value.trim() || "<registry>";
+    const image = registry + "/wflow:latest";
+    const domain = $("k8s-domain").value.trim() || "flow.example.com";
+    const ctx = $("k8s-host").value.trim();
+    const manifest = [
+      "apiVersion: v1",
+      "kind: PersistentVolumeClaim",
+      "metadata:",
+      "  name: wflow-data",
+      "  namespace: wflow",
+      "spec:",
+      "  accessModes: ['ReadWriteOnce']",
+      "  resources:",
+      "    requests:",
+      "      storage: 5Gi",
+      "---",
+      "apiVersion: apps/v1",
+      "kind: Deployment",
+      "metadata:",
+      "  name: wflow",
+      "  namespace: wflow",
+      "spec:",
+      "  replicas: 1",
+      "  selector:",
+      "    matchLabels: { app: wflow }",
+      "  template:",
+      "    metadata:",
+      "      labels: { app: wflow }",
+      "    spec:",
+      "      containers:",
+      "        - name: wflow",
+      "          image: " + image,
+      "          ports:",
+      "            - containerPort: 3001",
+      "          envFrom:",
+      "            - secretRef: { name: wflow-secrets }",
+      "          env:",
+      "            - name: PORT",
+      "              value: '3001'",
+      "          volumeMounts:",
+      "            - name: data",
+      "              mountPath: /app/data",
+      "          readinessProbe:",
+      "            httpGet: { path: /api/health, port: 3001 }",
+      "            initialDelaySeconds: 5",
+      "      volumes:",
+      "        - name: data",
+      "          persistentVolumeClaim:",
+      "            claimName: wflow-data",
+      "---",
+      "apiVersion: v1",
+      "kind: Service",
+      "metadata:",
+      "  name: wflow",
+      "  namespace: wflow",
+      "spec:",
+      "  selector: { app: wflow }",
+      "  ports:",
+      "    - name: http",
+      "      port: 3001",
+      "      targetPort: 3001",
+      "---",
+      "apiVersion: networking.k8s.io/v1",
+      "kind: Ingress",
+      "metadata:",
+      "  name: wflow",
+      "  namespace: wflow",
+      "  annotations:",
+      "    cert-manager.io/cluster-issuer: letsencrypt-prod",
+      "spec:",
+      "  rules:",
+      "    - host: " + domain,
+      "      http:",
+      "        paths:",
+      "          - path: /",
+      "            pathType: Prefix",
+      "            backend:",
+      "              service:",
+      "                name: wflow",
+      "                port: { number: 3001 }",
+      "  tls:",
+      "    - hosts: ['" + domain + "']",
+      "      secretName: wflow-tls",
+    ].join("\n");
+    renderSteps("k8s-cmds", [
+      ["1. Build & push the image", "docker build -t " + image + " .\ndocker push " + image],
+      ["2. Select the cluster", "kubectl config use-context " + (ctx || "<your-context>")],
+      ["3. Namespace + secrets", "kubectl create namespace wflow\nkubectl -n wflow create secret generic wflow-secrets \\\n  --from-literal=BF_ENCRYPTION_KEY=$(openssl rand -hex 32) \\\n  --from-literal=BF_ADMIN_PASSWORD=$(openssl rand -base64 18)"],
+      ["4. Write the manifests (wflow.yaml)", "cat > wflow.yaml <<'EOF'\n" + manifest + "\nEOF"],
+      ["5. Apply + watch the rollout", "kubectl apply -f wflow.yaml\nkubectl -n wflow rollout status deploy/wflow"],
+      ["6. Start the admin panel inside the pod (the pod runs only the app)", "kubectl -n wflow exec deploy/wflow -- sh -c 'nohup node server/admin.js >/tmp/admin.log 2>&1 &'"],
+      ["7. Reach the admin panel safely, then open http://localhost:3002", "kubectl -n wflow port-forward deploy/wflow 3002:3002"],
+    ]);
+  }
+
+  // ---- Nginx & TLS ----
+  async function loadNginx() {
+    const ops = await loadOps();
+    $("ng-domain").value = ops.nginxDomain || ops.domain || "";
+    $("ng-host").value = ops.nginxHost || ops.vpsHost || "";
+    $("ng-msg").className = "msg"; $("ng-msg").textContent = "";
+    renderNginxCmds();
+  }
+  function renderNginxCmds() {
+    const domain = $("ng-domain").value.trim();
+    const host = $("ng-host").value.trim();
+    if (!domain) { $("ng-cmds").innerHTML = "<div class='sub' style='margin:0'>Enter the domain above to generate the Nginx configuration.</div>"; return; }
+    const site = [
+      "server {",
+      "  listen 80;",
+      "  listen [::]:80;",
+      "  server_name " + domain + ";",
+      "",
+      "  location / {",
+      "    proxy_pass http://127.0.0.1:3001;",
+      "    proxy_http_version 1.1;",
+      "    proxy_set_header Upgrade $http_upgrade;",
+      "    proxy_set_header Connection 'upgrade';",
+      "    proxy_set_header Host $host;",
+      "    proxy_set_header X-Real-IP $remote_addr;",
+      "    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+      "    proxy_set_header X-Forwarded-Proto $scheme;",
+      "    proxy_read_timeout 300s;",
+      "  }",
+      "}",
+    ].join("\n");
+    renderSteps("ng-cmds", [
+      ["1. DNS — point the domain at the server" + (host ? " (" + host + ")" : ""), "A record:  " + domain + "  →  " + (host || "<your-vps-ip>")],
+      ["2. Install Nginx + Certbot", "sudo apt-get update\nsudo apt-get install -y nginx certbot python3-certbot-nginx"],
+      ["3. Create the site config", "sudo tee /etc/nginx/sites-available/" + domain + " >/dev/null <<'EOF'\n" + site + "\nEOF"],
+      ["4. Enable it and test", "sudo ln -sf /etc/nginx/sites-available/" + domain + " /etc/nginx/sites-enabled/" + domain + "\nsudo nginx -t && sudo systemctl reload nginx"],
+      ["5. Get the TLS certificate (rewrites the config for HTTPS)", "sudo certbot --nginx -d " + domain + " --redirect --agree-tos -m you@example.com"],
+      ["6. Verify auto-renewal", "sudo certbot renew --dry-run"],
+    ]);
+  }
+
+  // ---- alerts ----
+  async function loadAlerts() {
+    const { data } = await api("GET", "/api/admin/alerts");
+    const settings = data.settings || {};
+    const stats = data.stats || {};
+    const health = data.health || {};
+    $("al-email").value = settings.email || "";
+    $("al-enabled").checked = !!settings.enabled;
+    const open = Number(stats.open || 0);
+    const pill = $("al-tab-pill");
+    pill.textContent = String(open);
+    pill.className = "status-pill " + (open ? "off" : "on");
+    $("al-kv").innerHTML = kvRows([
+      ["Server health", health.ok ? "<span style='color:var(--green)'>UP</span>" : "<span style='color:var(--red)'>DOWN — " + esc(health.detail || "no response") + "</span>"],
+      ["Open alerts", String(open)],
+      ["Total recorded", String(stats.total || 0)],
+      ["E-mail delivery", data.mailConfigured ? "SMTP configured" : "SMTP not configured — see the Auth & e-mail tab"],
+    ]);
+    $("al-msg").className = "msg"; $("al-msg").textContent = "";
+    const alerts = data.alerts || [];
+    const tb = document.querySelector("#al-table tbody");
+    tb.innerHTML = alerts.length
+      ? alerts.map((a) => {
+          const color = a.level === "critical" ? "var(--red)" : a.level === "warning" ? "var(--amber)" : "var(--green)";
+          const actions =
+            (a.resolved ? "" : "<button class='btn mini' data-al-resolve='" + esc(a.id) + "'>Resolve</button>") +
+            "<button class='btn mini danger' data-al-del='" + esc(a.id) + "'>Delete</button>";
+          return (
+            "<tr" + (a.resolved ? " style='opacity:.55'" : "") + ">" +
+            "<td><span style='color:" + color + ";font-weight:700'>" + esc(String(a.level || "").toUpperCase()) + "</span></td>" +
+            "<td>" + esc(a.source || "—") + "</td>" +
+            "<td>" + esc(a.title || "") + "</td>" +
+            "<td style='max-width:320px;white-space:normal'>" + esc(a.message || "") + "</td>" +
+            "<td>" + esc(String(a.occurrences || 1)) + "</td>" +
+            "<td>" + esc(fmtTs(a.updatedAt || a.createdAt)) + "</td>" +
+            "<td><div class='row' style='gap:5px;flex-wrap:wrap'>" + actions + "</div></td></tr>"
+          );
+        }).join("")
+      : "<tr><td colspan='7' style='color:var(--faint)'>No alerts — everything is healthy.</td></tr>";
+    document.querySelectorAll("#al-table [data-al-resolve]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        await api("POST", "/api/admin/alerts/resolve", { id: b.dataset.alResolve });
+        loadAlerts();
+      })
+    );
+    document.querySelectorAll("#al-table [data-al-del]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        await api("POST", "/api/admin/alerts/delete", { id: b.dataset.alDel });
+        loadAlerts();
+      })
+    );
+  }
+
+  // ---- backups ----
+  async function loadTeams() {
+    const { data } = await api("GET", "/api/admin/teams");
+    $("tm-notify").textContent = data.notifyEmail || "—";
+    const list = data.teams || [];
+    const tb = document.querySelector("#tm-table tbody");
+    const statusText = (t) => t.status === "active" ? (t.active ? "active" : "active — payment lapsed") : t.status;
+    tb.innerHTML = list.length
+      ? list.map((t) => {
+          const suggested = (t.seats * 9.99).toFixed(2);
+          const open = t.status === "pending" || t.status === "approved";
+          const paidTill = t.paidUntil ? "<div style='color:var(--faint)'>paid until " + esc(fmtTs(new Date(t.paidUntil).toISOString())) + "</div>" : "";
+          return "<tr>" +
+            "<td>" + esc(fmtTs(t.createdAt)) + "</td>" +
+            "<td>" + esc(t.ownerName ? t.ownerName + " <" + t.ownerEmail + ">" : t.ownerEmail) + (t.company ? "<div style='color:var(--faint)'>" + esc(t.company) + "</div>" : "") + "</td>" +
+            "<td>" + esc(String(t.seats)) + ((t.members || []).length ? "<div style='color:var(--faint)'>" + esc(t.members.join(", ")) + "</div>" : "") + "</td>" +
+            "<td style='max-width:260px;white-space:pre-wrap'>" + esc(t.message || "—") + "</td>" +
+            "<td>" + esc(statusText(t)) + paidTill + "</td>" +
+            "<td>" + (open
+              ? "<input data-tm-price='" + esc(t.id) + "' type='number' min='1' step='0.01' style='width:110px' value='" + esc(String(t.priceMonthly || suggested)) + "' />" +
+                "<input data-tm-note='" + esc(t.id) + "' placeholder='Note to the buyer (optional)' style='margin-top:4px' value='" + esc(t.note || "") + "' />"
+              : esc(t.priceMonthly ? "€" + Number(t.priceMonthly).toFixed(2) : "—")) + "</td>" +
+            "<td><div class='row' style='gap:5px;flex-wrap:wrap'>" +
+            (open ? "<button class='btn mini primary' data-tm-approve='" + esc(t.id) + "'>" + (t.status === "approved" ? "Update price" : "Approve") + "</button>" : "") +
+            (t.status === "pending" ? "<button class='btn mini danger' data-tm-decline='" + esc(t.id) + "'>Decline</button>" : "") +
+            (t.status !== "rejected" && t.status !== "ended" ? "<button class='btn mini' data-tm-paid='" + esc(t.id) + "'>Mark paid 1 month</button>" : "") +
+            (t.status === "active" ? "<button class='btn mini danger' data-tm-end='" + esc(t.id) + "'>End plan</button>" : "") +
+            "</div></td></tr>";
+        }).join("")
+      : "<tr><td colspan='7' style='color:var(--faint)'>No Team plan requests yet.</td></tr>";
+    const report = (status, r, okText) => {
+      const m = $("tm-msg");
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? okText : (r.error || "That did not work.");
+      loadTeams();
+    };
+    const valueOf = (attr, id) => (document.querySelector("[" + attr + "='" + id + "']") || {}).value || "";
+    document.querySelectorAll("#tm-table [data-tm-approve]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const id = b.dataset.tmApprove;
+        const { status, data: r } = await api("POST", "/api/admin/teams/decide", { id, approve: true, priceMonthly: Number(valueOf("data-tm-price", id)), note: valueOf("data-tm-note", id) });
+        report(status, r, "Approved — the buyer was e-mailed and can now buy it.");
+      })
+    );
+    document.querySelectorAll("#tm-table [data-tm-decline]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const id = b.dataset.tmDecline;
+        if (!window.confirm("Decline this Team plan request? The buyer is e-mailed.")) return;
+        const { status, data: r } = await api("POST", "/api/admin/teams/decide", { id, approve: false, note: valueOf("data-tm-note", id) });
+        report(status, r, "Declined — the buyer was e-mailed.");
+      })
+    );
+    document.querySelectorAll("#tm-table [data-tm-paid]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const { status, data: r } = await api("POST", "/api/admin/teams/paid", { id: b.dataset.tmPaid, months: 1 });
+        report(status, r, "Marked paid for one more month.");
+      })
+    );
+    document.querySelectorAll("#tm-table [data-tm-end]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        if (!window.confirm("End this Team plan now? Its accounts lose Pro and its self-hosted copy locks at the next check.")) return;
+        const { status, data: r } = await api("POST", "/api/admin/teams/end", { id: b.dataset.tmEnd });
+        report(status, r, "Plan ended.");
+      })
+    );
+  }
+
+  async function loadBackups() {
+    const { data } = await api("GET", "/api/admin/backups");
+    const s = data.settings || {};
+    const list = data.backups || [];
+    $("bk-enabled").checked = !!s.enabled;
+    $("bk-interval").value = s.intervalHours || 24;
+    $("bk-keep").value = s.keep || 7;
+    $("bk-kv").innerHTML = kvRows([
+      ["Database engine", "<code>" + esc(data.engine || "sqlite") + "</code>"],
+      ["Automatic backups", s.enabled ? "on — every " + (s.intervalHours || 24) + " h" : "off"],
+      ["Last backup", data.lastRun ? esc(fmtTs(data.lastRun)) : "never"],
+      ["Stored snapshots", String(list.length)],
+    ]);
+    $("bk-msg").className = "msg"; $("bk-msg").textContent = "";
+    const tb = document.querySelector("#bk-table tbody");
+    tb.innerHTML = list.length
+      ? list.map((b) =>
+          "<tr><td>" + esc(b.name) + "</td><td>" + esc(b.kind || "") + "</td>" +
+          "<td>" + esc(fmtTs(b.createdAt)) + "</td><td>" + esc(fmtBytes(b.sizeBytes)) + "</td>" +
+          "<td>" + esc(b.engine || "—") + "</td>" +
+          "<td><div class='row' style='gap:5px;flex-wrap:wrap'>" +
+          "<button class='btn mini' data-bk-dl='" + esc(b.name) + "'>Download</button>" +
+          "<button class='btn mini' data-bk-restore='" + esc(b.name) + "'>Restore</button>" +
+          "<button class='btn mini danger' data-bk-del='" + esc(b.name) + "'>Delete</button>" +
+          "</div></td></tr>"
+        ).join("")
+      : "<tr><td colspan='6' style='color:var(--faint)'>No backups yet — press “Back up now”.</td></tr>";
+    document.querySelectorAll("#bk-table [data-bk-dl]").forEach((b) =>
+      b.addEventListener("click", () => {
+        window.location.href = "/api/admin/backups/download?name=" + encodeURIComponent(b.dataset.bkDl);
+      })
+    );
+    document.querySelectorAll("#bk-table [data-bk-restore]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        if (!window.confirm("Restore “" + b.dataset.bkRestore + "”? This OVERWRITES ./data (database + stores + keyfile) and requires a restart.")) return;
+        const { status, data: r } = await api("POST", "/api/admin/backups/restore", { name: b.dataset.bkRestore });
+        const m = $("bk-table-msg");
+        m.className = "msg " + (status < 300 ? "ok" : "err");
+        m.textContent = status < 300 ? (r.message || "Restored — restart the app.") : (r.error || "Restore failed.");
+        loadBackups();
+      })
+    );
+    document.querySelectorAll("#bk-table [data-bk-del]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        if (!window.confirm("Delete backup “" + b.dataset.bkDel + "”?")) return;
+        const { status, data: r } = await api("POST", "/api/admin/backups/delete", { name: b.dataset.bkDel });
+        const m = $("bk-table-msg");
+        m.className = "msg " + (status < 300 ? "ok" : "err");
+        m.textContent = status < 300 ? "Deleted." : (r.error || "Delete failed.");
+        loadBackups();
+      })
+    );
+  }
+
+  // ---- events journal ----
+  async function loadJournal() {
+    const params = new URLSearchParams();
+    const source = $("jr-source").value;
+    const op = $("jr-op").value.trim();
+    if (source) params.set("source", source);
+    if (op) params.set("op", op);
+    params.set("limit", "200");
+    const { data } = await api("GET", "/api/admin/journal?" + params.toString());
+    const stats = data.stats || {};
+    $("jr-kv").innerHTML = kvRows([
+      ["Journal", data.enabled ? "enabled" : "DISABLED (BF_JOURNAL=0)"],
+      ["This process", "<code>" + esc(data.processSource || "—") + "</code>"],
+      ["Buffered (not yet flushed)", String(stats.buffered || 0)],
+      ["Entries in database", String(data.total || 0)],
+      ["Retention", (data.retentionDays || 7) + " days"],
+    ]);
+    $("jr-msg").className = "msg"; $("jr-msg").textContent = "";
+    const events = data.events || [];
+    const tb = document.querySelector("#jr-table tbody");
+    tb.innerHTML = events.length
+      ? events.map((e) =>
+          "<tr><td>" + esc(fmtTs(e.ts)) + "</td>" +
+          "<td>" + esc(e.source || "") + (e.actor ? " <span style='color:var(--faint)'>" + esc(e.actor) + "</span>" : "") + "</td>" +
+          "<td><code>" + esc(e.op || "") + "</code></td>" +
+          "<td>" + esc(e.target || "—") + "</td>" +
+          "<td style='max-width:280px;white-space:normal;color:var(--dim)'>" + esc(e.detail || "") + "</td>" +
+          "<td>" + esc(String(e.durationMs || 0)) + " ms</td>" +
+          "<td>" + (e.ok ? "<span style='color:var(--green)'>✓</span>" : "<span style='color:var(--red)'>✗</span>") + "</td></tr>"
+        ).join("")
+      : "<tr><td colspan='7' style='color:var(--faint)'>No events recorded yet.</td></tr>";
+    $("jr-table-msg").textContent = events.length + " event" + (events.length === 1 ? "" : "s") + " shown.";
+    $("jr-table-msg").className = "msg muted";
+  }
+
+  // ---- event wiring for the ops panels (runs once) ----
+  function initOpsPanels() {
+    $("pg-url-test").addEventListener("click", async () => {
+      const m = $("pg-url-msg");
+      const url = $("pg-url").value.trim();
+      if (!url) { m.className = "msg err"; m.textContent = "Enter a PostgreSQL connection string to test."; return; }
+      m.className = "msg muted"; m.textContent = "Testing connection…";
+      const { data } = await api("POST", "/api/admin/deploy/test-db", { databaseUrl: url });
+      m.className = "msg " + (data.ok ? "ok" : "err");
+      m.textContent = data.ok ? "✓ " + data.detail : "✗ " + (data.detail || "Connection failed.");
+    });
+    $("pg-url-save").addEventListener("click", async () => {
+      const m = $("pg-url-msg");
+      const url = $("pg-url").value.trim();
+      if (!url) { m.className = "msg err"; m.textContent = "Enter a connection string to save."; return; }
+      m.className = "msg muted"; m.textContent = "Saving…";
+      const { status, data } = await api("POST", "/api/admin/deploy/save", { databaseUrl: url });
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? (data.message || "Saved to .env — restart the app.") : (data.error || "Save failed.");
+      if (status < 300) loadPostgres();
+    });
+
+    $("vps-save").addEventListener("click", async () => {
+      const ok = await saveOps(
+        { repoUrl: $("vps-repo").value, vpsHost: $("vps-host").value, vpsUser: $("vps-user").value, domain: $("vps-domain").value },
+        "vps-msg"
+      );
+      if (ok) { renderVpsCmds(); renderDevVpsCmds(); }
+    });
+    $("dev-vps-save").addEventListener("click", async () => {
+      const ok = await saveOps({ devVpsHost: $("dev-vps-host").value }, "dev-vps-msg");
+      if (ok) renderDevVpsCmds();
+    });
+    ["vps-repo", "vps-host", "vps-user", "vps-domain"].forEach((id) => $(id).addEventListener("input", renderVpsCmds));
+    $("dev-vps-host").addEventListener("input", renderDevVpsCmds);
+
+    $("pat-save").addEventListener("click", async () => {
+      const ok = await saveOps({ patroniHost: $("pat-host").value }, "pat-msg");
+      if (ok) renderPatroniCmds();
+    });
+    $("pat-host").addEventListener("input", renderPatroniCmds);
+    $("pat-pass").addEventListener("input", renderPatroniCmds);
+
+    $("k8s-save").addEventListener("click", async () => {
+      const ok = await saveOps({ k8sHost: $("k8s-host").value, registry: $("k8s-registry").value, k8sDomain: $("k8s-domain").value }, "k8s-msg");
+      if (ok) renderK8sCmds();
+    });
+    ["k8s-host", "k8s-registry", "k8s-domain"].forEach((id) => $(id).addEventListener("input", renderK8sCmds));
+
+    $("ng-save").addEventListener("click", async () => {
+      const ok = await saveOps({ nginxDomain: $("ng-domain").value, nginxHost: $("ng-host").value }, "ng-msg");
+      if (ok) renderNginxCmds();
+    });
+    ["ng-domain", "ng-host"].forEach((id) => $(id).addEventListener("input", renderNginxCmds));
+
+    $("al-save").addEventListener("click", async () => {
+      const m = $("al-msg");
+      m.className = "msg muted"; m.textContent = "Saving…";
+      const { status, data } = await api("POST", "/api/admin/alerts/settings", { email: $("al-email").value.trim(), enabled: $("al-enabled").checked });
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? "Alert settings saved." : (data.error || "Save failed.");
+      if (status < 300) loadAlerts();
+    });
+    $("al-test").addEventListener("click", async () => {
+      const m = $("al-msg");
+      m.className = "msg muted"; m.textContent = "Sending…";
+      const { status, data } = await api("POST", "/api/admin/alerts/test");
+      m.className = "msg " + (data.ok ? "ok" : "err");
+      m.textContent = data.detail || (status < 300 ? "Test alert recorded." : "Could not send test alert.");
+      loadAlerts();
+    });
+
+    $("bk-save").addEventListener("click", async () => {
+      const m = $("bk-msg");
+      m.className = "msg muted"; m.textContent = "Saving…";
+      const { status, data } = await api("POST", "/api/admin/backups/settings", {
+        enabled: $("bk-enabled").checked,
+        intervalHours: Number($("bk-interval").value) || 24,
+        keep: Number($("bk-keep").value) || 7,
+      });
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? "Backup settings saved." : (data.error || "Save failed.");
+      if (status < 300) loadBackups();
+    });
+    $("bk-run").addEventListener("click", async () => {
+      const m = $("bk-msg");
+      m.className = "msg muted"; m.textContent = "Creating a snapshot…";
+      const { status, data } = await api("POST", "/api/admin/backups/run");
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? "Backup written: " + (data.result && data.result.name) : (data.error || "Backup failed.");
+      loadBackups();
+    });
+
+    $("jr-prune").addEventListener("click", async () => {
+      const m = $("jr-msg");
+      m.className = "msg muted"; m.textContent = "Pruning…";
+      const days = Number($("jr-days").value) || 7;
+      const { status, data } = await api("POST", "/api/admin/journal/prune", { days });
+      m.className = "msg " + (status < 300 ? "ok" : "err");
+      m.textContent = status < 300 ? "Removed " + (data.removed || 0) + " old entries." : (data.error || "Prune failed.");
+      loadJournal();
+    });
+    $("jr-refresh").addEventListener("click", loadJournal);
+    $("jr-filter").addEventListener("click", loadJournal);
+    $("jr-op").addEventListener("keydown", (e) => { if (e.key === "Enter") loadJournal(); });
+  }
+
+  // Build the exact cloudflared commands for the entered domain, with copy buttons.
+  function renderCloudCmds(domain) {
+    const box = $("de-cloud-cmds");
+    const d = String(domain || "").trim().toLowerCase();
+    if (!d) {
+      box.innerHTML = "<div class='sub' style='margin:0'>Enter a domain above to generate the commands.</div>";
+      return;
+    }
+    const steps = [
+      ["Install cloudflared", "curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared && chmod +x /usr/local/bin/cloudflared"],
+      ["Authenticate (opens a browser once)", "cloudflared tunnel login"],
+      ["Create the tunnel", "cloudflared tunnel create wflow"],
+      ["Route DNS for the domain (orange cloud on)", "cloudflared tunnel route dns wflow " + d],
+      ["Run the tunnel", "cloudflared tunnel run wflow"],
+      ["Keep it running as a service", "sudo cloudflared service install"],
+    ];
+    box.innerHTML = steps
+      .map(
+        ([label, cmd]) =>
+          "<div class='sub' style='margin:8px 0 2px'>" + esc(label) + "</div>" +
+          "<div class='cmdrow'><code>" + esc(cmd) + "</code><button class='btn mini copy-cmd'>COPY</button></div>"
+      )
+      .join("");
+    bindCopyButtons(box);
+  }
+
+  // Build the exact AWS EC2 commands for the entered instance IP / hostname.
+  function renderAwsCmds(host) {
+    const box = $("de-aws-cmds");
+    const h = String(host || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    if (!h) {
+      box.innerHTML = "<div class='sub' style='margin:0'>Enter the EC2 public IP / hostname above to generate the commands.</div>";
+      return;
+    }
+    const steps = [
+      ["Connect over SSH", "ssh -i your-key.pem ubuntu@" + h],
+      ["Install Docker (first time only)", "curl -fsSL https://get.docker.com | sh\nsudo usermod -aG docker ubuntu   # then log out and back in"],
+      ["Deploy the app", "git clone <your-repo-url> wflow && cd wflow\ncp .env.example .env\nnano .env   # use the AWS checklist above\ndocker compose up -d --build"],
+      ["Check the health endpoint", "curl -s http://" + h + ":3001/api/nodes | head -c 120"],
+      ["Open the app", "http://" + h + ":3001"],
+      ["Admin panel — SSH tunnel from your PC (no open ports)", "ssh -i your-key.pem -L 3002:localhost:3002 ubuntu@" + h + "\n# then open http://localhost:3002 in your browser"],
+      ["Update the app later (pull + rebuild)", "git pull && docker compose up -d --build"],
+    ];
+    box.innerHTML = steps
+      .map(
+        ([label, cmd]) =>
+          "<div class='sub' style='margin:8px 0 2px'>" + esc(label) + "</div>" +
+          "<div class='cmdrow'><code>" + esc(cmd) + "</code><button class='btn mini copy-cmd'>COPY</button></div>"
+      )
+      .join("");
+    bindCopyButtons(box);
+  }
+
+  // Wire every .copy-cmd button inside root to copy its code block's text.
+  function bindCopyButtons(root) {
+    root.querySelectorAll(".copy-cmd").forEach((b) => {
+      b.onclick = () => {
+        const code = b.closest(".cmdrow").querySelector("code");
+        const text = code.innerText;
+        const done = () => {
+          b.textContent = "✓ COPIED";
+          b.classList.add("copied");
+          setTimeout(() => { b.textContent = "COPY"; b.classList.remove("copied"); }, 1400);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+        } else {
+          fallbackCopy(text, done);
+        }
+      };
+    });
+  }
+
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch {}
+    ta.remove();
+    done();
+  }
+
+  // ---- billing (Stripe) ----
+  async function loadBilling() {
+    const { data } = await api("GET", "/api/admin/billing");
+    const pill = $("bi-pill");
+    pill.textContent = data.configured ? "CONNECTED" : "NOT CONFIGURED";
+    pill.className = "status-pill " + (data.configured ? "on" : "off");
+    // secret values are never echoed back — show the masked placeholder instead
+    $("bi-secret").value = "";
+    $("bi-secret").placeholder = data.secretKeyMasked || "sk_live_…";
+    $("bi-pub").value = data.publishableKey || "";
+    $("bi-wh").value = "";
+    $("bi-wh").placeholder = data.webhookSecretMasked || "whsec_…";
+    $("bi-price").value = data.priceId || "";
+    $("bi-success").value = data.successUrl || "";
+    $("bi-cancel").value = data.cancelUrl || "";
+    $("bi-open").checked = !!data.salesOpen;
+    $("bi-msg").className = "msg muted";
+    $("bi-msg").textContent = data.configured
+      ? data.salesOpen
+        ? "Connected and OPEN — customers can buy the " + data.priceLabel + " subscription."
+        : "Connected but CLOSED — the subscription page tells users Pro opens next month. Flip the toggle above and save to open sales."
+      : "Fill in a secret key and a price id to start selling.";
+    // crypto (NOWPayments) block of the same tab
+    const cr = data.crypto || {};
+    $("cr-enabled").checked = !!cr.enabled;
+    $("cr-key").value = "";
+    $("cr-key").placeholder = cr.apiKeyMasked || "API key from NOWPayments → Store settings";
+    $("cr-ipn").value = "";
+    $("cr-ipn").placeholder = cr.ipnSecretMasked || "IPN secret (for webhook signature checks)";
+    $("cr-amount").value = cr.priceAmount || "";
+    $("cr-currency").value = cr.priceCurrency || "";
+    $("cr-paycurrency").value = cr.payCurrency || "";
+    $("cr-pill").textContent = cr.configured ? "ON" : cr.enabled ? "KEY MISSING" : "OFF";
+    $("cr-pill").className = "status-pill " + (cr.configured ? "on" : "off");
+    bindCopyButtons($("tab-billing"));
+  }
+
+  $("cr-save").addEventListener("click", async () => {
+    const { status, data } = await api("POST", "/api/admin/billing", {
+      cryptoEnabled: $("cr-enabled").checked,
+      cryptoApiKey: $("cr-key").value,
+      cryptoIpnSecret: $("cr-ipn").value,
+      cryptoPriceAmount: $("cr-amount").value,
+      cryptoPriceCurrency: $("cr-currency").value,
+      cryptoPayCurrency: $("cr-paycurrency").value,
+    });
+    const m = $("cr-msg");
+    m.className = "msg " + (status < 300 ? "ok" : "err");
+    m.textContent = status < 300
+      ? (data.crypto && data.crypto.configured ? "Saved — crypto payments are ON." : "Saved." + (data.crypto && data.crypto.enabled ? " Add the API key to take payments." : ""))
+      : (data.error || "Could not save.");
+    if (status < 300) loadBilling();
+  });
+
+  // ---- analytics (users online) ----
+  let analyticsRange = "day";
+  async function loadAnalytics() {
+    const { data } = await api("GET", "/api/admin/analytics?range=" + analyticsRange);
+    const s = data.stats || {};
+    const rows = [
+      ["Active now (last 5 min)", s.now ?? 0],
+      ["Last hour", s.hour ?? 0],
+      ["Last day", s.day ?? 0],
+      ["Last week", s.week ?? 0],
+      ["Last month", s.month ?? 0],
+      ["Last year", s.year ?? 0],
+      ["All time", s.all ?? 0],
+    ];
+    $("an-kv").innerHTML = rows
+      .map(([k, v]) => "<b>" + esc(k) + "</b><span>" + v + " user" + (v === 1 ? "" : "s") + "</span>")
+      .join("");
+    document.querySelectorAll("#tab-analytics [data-range]").forEach((b) => {
+      b.classList.toggle("active", b.dataset.range === analyticsRange);
+    });
+    drawChart(data.series);
+    const total = (data.series && data.series.total) || 0;
+    $("an-msg").textContent =
+      total + " distinct user" + (total === 1 ? "" : "s") +
+      (analyticsRange === "all" ? " recorded since launch." : " active across the whole " + analyticsRange + ".");
+  }
+
+  function drawChart(series) {
+    const cv = $("an-chart");
+    const dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth || 820;
+    const h = 240;
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    const ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const buckets = (series && series.buckets) || [];
+    const padL = 34, padR = 10, padT = 12, padB = 26;
+    const plotW = w - padL - padR, plotH = h - padT - padB;
+    const max = Math.max(1, ...buckets.map((b) => b.count));
+    // gridlines + y labels
+    ctx.font = "9px 'Courier New', monospace";
+    ctx.textAlign = "right";
+    for (let i = 0; i <= 4; i++) {
+      const y = padT + plotH - (plotH * i) / 4;
+      ctx.strokeStyle = "#1f2c4d";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+      ctx.fillStyle = "#6a7897";
+      ctx.fillText(String(Math.round((max * i) / 4)), padL - 6, y + 3);
+    }
+    // bars
+    const n = buckets.length || 1;
+    const bw = plotW / n;
+    if (!buckets.length) {
+      ctx.fillStyle = "#6a7897";
+      ctx.textAlign = "center";
+      ctx.fillText("No activity recorded yet.", w / 2, h / 2);
+      return;
+    }
+    buckets.forEach((b, i) => {
+      const x = padL + bw * i;
+      const bh = (b.count / max) * plotH;
+      const y = padT + plotH - bh;
+      const grad = ctx.createLinearGradient(0, y, 0, padT + plotH);
+      grad.addColorStop(0, "#45c98a");
+      grad.addColorStop(1, "#4a7dff");
+      ctx.fillStyle = grad;
+      ctx.fillRect(Math.round(x + 2), Math.round(y), Math.max(2, Math.round(bw - 4)), Math.round(bh));
+      ctx.fillStyle = "#a9b6d0";
+      ctx.textAlign = "center";
+      ctx.fillText(b.label, x + bw / 2, h - padB + 14);
+    });
+  }
+
+  async function loadSecurity() {
+    const { data } = await api("GET", "/api/admin/security");
+    const rows = Object.entries(data).map(([k, v]) => [k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()), esc(String(v))]);
+    $("sec-kv").innerHTML = rows.map(([k, v]) => "<b>" + k + "</b><span>" + v + "</span>").join("");
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  // ---- legal pages ----
+  async function loadLegal() {
+    const { data } = await api("GET", "/api/admin/legal");
+    $("lg-domain").value = data.domain || "";
+    $("lg-domain-msg").className = "msg muted";
+    $("lg-domain-msg").innerHTML =
+      "The legal site is always served on the main site at " +
+      "<b>/impressum · /datenschutz</b>" +
+      (data.domain ? ". It is also on the <b>" + esc(data.domain) + "</b> subdomain." : ". No legal subdomain is configured yet.");
+    const fieldToInput = {
+      name: "lg-name", company: "lg-company", legalForm: "lg-legalform", address: "lg-address", city: "lg-city",
+      country: "lg-country", email: "lg-email", phone: "lg-phone", representative: "lg-representative",
+      registerCourt: "lg-registercourt", registerNumber: "lg-registernumber", vatId: "lg-vatid",
+      privacyEmail: "lg-privacyemail", reportEmail: "lg-reportemail",
+      updated: "lg-updated", siteDomain: "lg-sitedomain", logRetention: "lg-logretention",
+      hoster: "lg-hoster", hosterAddress: "lg-hosteraddress", hostingLocation: "lg-hostinglocation",
+      cloudflare: "lg-cloudflare", supabase: "lg-supabase", database: "lg-database",
+      mailService: "lg-mailservice", storagePeriods: "lg-storageperiods",
+      extraUserFields: "lg-extrauserfields",
+      accountDeletion: "lg-accountdeletion", workflowStorage: "lg-workflowstorage",
+      externalData: "lg-externaldata", sessionTech: "lg-sessiontech", sessionDuration: "lg-sessionduration",
+      processors: "lg-processors", thirdCountryService: "lg-thirdcountryservice",
+      thirdCountryBasis: "lg-thirdcountrybasis", authority: "lg-authority", securityMeasures: "lg-securitymeasures",
+    };
+    for (const [key, id] of Object.entries(fieldToInput)) $(id).value = data[key] || "";
+    $("lg-msg").className = "msg";
+    $("lg-msg").textContent = "";
+  }
+
+  // ---- auth & e-mail ----
+  async function loadAuthSettings() {
+    const { data } = await api("GET", "/api/admin/authsettings");
+    $("au-host").value = data.smtpHost || "";
+    $("au-port").value = data.smtpPort || "587";
+    $("au-secure").checked = !!data.smtpSecure;
+    $("au-user").value = data.smtpUser || "";
+    $("au-pass").value = "";
+    $("au-from").value = data.mailFrom || "";
+    $("au-contact").value = data.contactEmail || "";
+    $("au-public").value = data.publicUrl || "";
+    $("au-google-id").value = data.oauth?.google?.clientId || "";
+    $("au-google-secret").value = "";
+    $("au-google-secret").placeholder = data.oauth?.google?.hasSecret
+      ? "saved " + (data.oauth.google.secretMasked || "••••") + " — leave empty to keep"
+      : "leave empty to keep";
+    $("au-github-id").value = data.oauth?.github?.clientId || "";
+    $("au-github-secret").value = "";
+    $("au-github-secret").placeholder = data.oauth?.github?.hasSecret
+      ? "saved " + (data.oauth.github.secretMasked || "••••") + " — leave empty to keep"
+      : "leave empty to keep";
+    $("au-ms-id").value = data.oauth?.microsoft?.clientId || "";
+    $("au-ms-secret").value = "";
+    $("au-ms-secret").placeholder = data.oauth?.microsoft?.hasSecret
+      ? "saved " + (data.oauth.microsoft.secretMasked || "••••") + " — leave empty to keep"
+      : "leave empty to keep";
+    $("au-ms-tenant").value = data.microsoftTenant || "";
+    // One block per remaining connected-account service (shared/oauth.js).
+    {
+      const baseUrl = (data.publicUrl || location.origin).replace(/\/+$/, "");
+      $("au-gh-callback").textContent = baseUrl + "/api/auth/oauth/github/callback";
+      const skip = new Set(["google", "github", "microsoft"]);
+      $("au-conn-list").innerHTML = (data.connectionProviders || [])
+        .filter((p) => !skip.has(p.id))
+        .map((p) =>
+          '<div class="conn-block" style="border:1px solid var(--line,#2c3d68);border-radius:8px;padding:10px 12px;margin:10px 0">' +
+          "<b>" + esc(p.label) + "</b> " +
+          '<span class="status-pill ' + (p.configured ? "on" : "off") + '">' + (p.configured ? "configured" : "not set") + "</span>" +
+          '<div class="sub" style="margin:4px 0">' + esc(p.setup || "") +
+          ' — <a href="' + esc(p.console || "#") + '" target="_blank" rel="noopener">open developer console</a><br />Redirect URL: <code>' +
+          esc(baseUrl + "/api/connections/" + p.id + "/callback") + "</code></div>" +
+          '<label>Client ID</label><input data-conn-id="' + esc(p.id) + '" maxlength="300" autocomplete="off" data-lpignore="true" data-1p-ignore value="' + esc(p.clientId || "") + '" />' +
+          '<label>Client secret</label><input data-conn-secret="' + esc(p.id) + '" type="password" autocomplete="new-password" placeholder="' +
+          esc(p.hasSecret ? "saved " + (p.secretMasked || "••••") + " — leave empty to keep" : "leave empty to keep") + '" />' +
+          "</div>"
+        )
+        .join("");
+    }
+    $("au-tg-id").value = data.telegram?.apiId || "";
+    $("au-tg-hash").value = "";
+    $("au-tg-hash").placeholder = data.telegram?.hasHash
+      ? "saved " + (data.telegram.hashMasked || "••••") + " — leave empty to keep"
+      : "leave empty to keep";
+    $("au-tg-state").className = "status-pill " + (data.telegram?.configured ? "on" : "off");
+    $("au-tg-state").textContent = data.telegram?.configured ? "configured" : "not set";
+    $("au-sb-url").value = data.supabase?.url || "";
+    // set when the stored value had to be corrected (an API path in the URL)
+    $("au-sb-note").textContent = data.supabase?.urlNote || "";
+    $("au-sb-note").style.display = data.supabase?.urlNote ? "" : "none";
+    $("au-sb-msg").className = "msg muted";
+    $("au-sb-msg").textContent = "";
+    $("au-sb-key").value = "";
+    $("au-sb-key").placeholder = data.supabase?.hasAnonKey
+      ? "saved " + (data.supabase.anonKeyMasked || "••••") + " — leave empty to keep"
+      : "leave empty to keep";
+    $("au-sb-providers").value = data.supabase?.providers || "";
+    // on unless explicitly switched off
+    $("au-sb-magic").checked = data.supabase?.magicLink !== false;
+    const base = (data.publicUrl || location.origin).replace(/\/+$/, "");
+    $("au-sb-redirect").textContent = base + "/api/auth/oauth/supabase/callback";
+    const kvRows = [
+      ["Google", data.oauth?.google?.configured ? "configured" : "not configured"],
+      ["GitHub", data.oauth?.github?.configured ? "configured" : "not configured"],
+      ["Supabase", data.supabase?.configured ? "configured" : "not configured"],
+      ["Microsoft (node accounts)", data.oauth?.microsoft?.configured ? "configured" : "not configured"],
+      ["Google redirect URI", base + "/api/auth/oauth/google/callback"],
+      ["Google connect redirect URI (nodes)", base + "/api/connections/google/callback"],
+      ["Microsoft connect redirect URI (nodes)", base + "/api/connections/microsoft/callback"],
+      ["GitHub redirect URI", base + "/api/auth/oauth/github/callback"],
+      ["Supabase redirect URI", base + "/api/auth/oauth/supabase/callback"],
+    ];
+    // Only needed when Supabase brokers a social provider: it is the OAuth
+    // client then, so the client id/secret pasted into Supabase must have its
+    // own callback allowed, or the provider answers “redirect_uri_mismatch”.
+    if (data.supabase?.url) {
+      kvRows.push(["Callback for the provider's own console (Google / GitHub)", data.supabase.url + "/auth/v1/callback"]);
+    }
+    $("au-oauth-kv").innerHTML = kvRows.map(([k, v]) => "<b>" + k + "</b><span>" + esc(v) + "</span>").join("");
+    $("au-msg").className = "msg";
+    $("au-msg").textContent = "";
+  }
+
+  $("au-save").addEventListener("click", async () => {
+    const m = $("au-msg");
+    m.className = "msg muted";
+    m.textContent = "Saving…";
+    const { status, data } = await api("POST", "/api/admin/authsettings", {
+      smtpHost: $("au-host").value,
+      smtpPort: $("au-port").value,
+      smtpSecure: $("au-secure").checked,
+      smtpUser: $("au-user").value,
+      smtpPass: $("au-pass").value,
+      mailFrom: $("au-from").value,
+      contactEmail: $("au-contact").value,
+      publicUrl: $("au-public").value,
+      oauth: {
+        google: { clientId: $("au-google-id").value, clientSecret: $("au-google-secret").value },
+        github: { clientId: $("au-github-id").value, clientSecret: $("au-github-secret").value },
+        microsoft: { clientId: $("au-ms-id").value, clientSecret: $("au-ms-secret").value },
+        // every other connected-account service rendered into #au-conn-list
+        ...Object.fromEntries(
+          Array.from(document.querySelectorAll("[data-conn-id]")).map((el) => {
+            const id = el.getAttribute("data-conn-id");
+            const secret = document.querySelector('[data-conn-secret="' + id + '"]');
+            return [id, { clientId: el.value, clientSecret: secret ? secret.value : "" }];
+          })
+        ),
+      },
+      microsoftTenant: $("au-ms-tenant").value,
+      telegram: { apiId: $("au-tg-id").value, apiHash: $("au-tg-hash").value },
+      supabase: {
+        url: $("au-sb-url").value,
+        anonKey: $("au-sb-key").value,
+        providers: $("au-sb-providers").value,
+        magicLink: $("au-sb-magic").checked,
+      },
+    });
+    if (status < 300) {
+      // reloading resets the status line, so report after it
+      loadAuthSettings();
+      m.className = data.note ? "msg" : "msg ok";
+      m.textContent = data.note ? "Saved. " + data.note : "Saved.";
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  $("au-test-mail").addEventListener("click", async () => {
+    const m = $("au-test-msg");
+    m.className = "msg muted";
+    m.textContent = "Sending…";
+    const { status, data } = await api("POST", "/api/admin/mail/test", { to: $("au-test-to").value.trim() });
+    m.className = "msg " + (data.ok ? "ok" : "err");
+    m.textContent = data.detail || data.error || (status < 300 ? "Sent." : "Send failed.");
+  });
+
+  // Asks the project itself whether the URL and key work, and which providers
+  // are switched on there — the failures this catches are otherwise only visible
+  // as a raw error page in the browser.
+  $("au-sb-test").addEventListener("click", async () => {
+    const m = $("au-sb-msg");
+    m.className = "msg muted";
+    m.textContent = "Asking Supabase…";
+    const { status, data } = await api("POST", "/api/admin/supabase/test", {
+      url: $("au-sb-url").value,
+      anonKey: $("au-sb-key").value,
+      providers: $("au-sb-providers").value,
+    });
+    if (status >= 400) {
+      m.className = "msg err";
+      m.textContent = data.error || "Test failed.";
+      return;
+    }
+    const bits = [];
+    if (data.note) bits.push(data.note);
+    if (data.ok) {
+      bits.push("Project reachable" + (data.url ? " at " + data.url + "." : "."));
+      bits.push(
+        data.enabled && data.enabled.length
+          ? "Enabled on the project: " + data.enabled.join(", ") + "."
+          : "No providers are enabled on the Supabase project yet."
+      );
+      if (data.missing && data.missing.length) {
+        bits.push("Off in Supabase, so those buttons will not work: " + data.missing.join(", ") + ".");
+      }
+      const social = (data.enabled || []).filter((p) => p !== "email" && p !== "phone" && p !== "anonymous_users");
+      if (social.length) {
+        bits.push(
+          "The Google / GitHub app whose client id was pasted into Supabase must allow " +
+            (data.providerCallback || "the Supabase callback") +
+            " as a redirect URI, otherwise the provider answers “redirect_uri_mismatch” / “redirect_uri is not associated with this application”."
+        );
+      }
+      if (!data.emailOn) bits.push("The E-mail provider is off, so sign-in links cannot be sent.");
+    } else {
+      bits.push("Supabase answered " + (data.status || "with an error") + ": " + (data.message || "unknown error"));
+      if (data.hint) bits.push(data.hint);
+    }
+    m.className = "msg " + (data.ok ? "ok" : "err");
+    m.textContent = bits.filter(Boolean).join(" ");
+  });
+
+  $("lg-save").addEventListener("click", async () => {
+    const m = $("lg-msg");
+    m.className = "msg muted";
+    m.textContent = "Saving…";
+    const { status, data } = await api("POST", "/api/admin/legal", {
+      domain: $("lg-domain").value.trim(),
+      name: $("lg-name").value,
+      company: $("lg-company").value,
+      legalForm: $("lg-legalform").value,
+      address: $("lg-address").value,
+      city: $("lg-city").value,
+      country: $("lg-country").value,
+      email: $("lg-email").value,
+      phone: $("lg-phone").value,
+      representative: $("lg-representative").value,
+      registerCourt: $("lg-registercourt").value,
+      registerNumber: $("lg-registernumber").value,
+      vatId: $("lg-vatid").value,
+      privacyEmail: $("lg-privacyemail").value,
+      reportEmail: $("lg-reportemail").value,
+      updated: $("lg-updated").value,
+      siteDomain: $("lg-sitedomain").value,
+      logRetention: $("lg-logretention").value,
+      hoster: $("lg-hoster").value,
+      hosterAddress: $("lg-hosteraddress").value,
+      hostingLocation: $("lg-hostinglocation").value,
+      cloudflare: $("lg-cloudflare").value,
+      supabase: $("lg-supabase").value,
+      database: $("lg-database").value,
+      mailService: $("lg-mailservice").value,
+      storagePeriods: $("lg-storageperiods").value,
+      extraUserFields: $("lg-extrauserfields").value,
+      accountDeletion: $("lg-accountdeletion").value,
+      workflowStorage: $("lg-workflowstorage").value,
+      externalData: $("lg-externaldata").value,
+      sessionTech: $("lg-sessiontech").value,
+      sessionDuration: $("lg-sessionduration").value,
+      processors: $("lg-processors").value,
+      thirdCountryService: $("lg-thirdcountryservice").value,
+      thirdCountryBasis: $("lg-thirdcountrybasis").value,
+      authority: $("lg-authority").value,
+      securityMeasures: $("lg-securitymeasures").value,
+    });
+    if (status < 300) {
+      m.className = "msg ok";
+      m.textContent = data.domain
+        ? "Saved — the legal pages now live on " + data.domain + "."
+        : "Saved — the legal pages use the derived info. subdomain.";
+      $("lg-msg2").className = "msg ok";
+      $("lg-msg2").textContent = "Saved — the privacy policy placeholders were updated.";
+      loadLegal();
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  // ---- SEO & GEO ----
+  async function loadSeo() {
+    const { data } = await api("GET", "/api/admin/seo");
+    $("se-title").value = data.title || "";
+    $("se-description").value = data.description || "";
+    $("se-keywords").value = data.keywords || "";
+    $("se-ogimage").value = data.ogImage || "";
+    $("se-twitter").value = data.twitter || "";
+    $("se-googleverification").value = data.googleVerification || "";
+    $("se-bingverification").value = data.bingVerification || "";
+    $("se-indexable").checked = data.indexable !== false;
+    $("se-robotsExtra").value = data.robotsExtra || "";
+    $("se-extraHead").value = data.extraHead || "";
+    $("se-llmsEnabled").checked = data.llmsEnabled !== false;
+    $("se-aiCrawlers").checked = data.aiCrawlers !== false;
+    $("se-llmsSummary").value = data.llmsSummary || "";
+    $("se-llmsFacts").value = data.llmsFacts || "";
+    $("se-msg").className = "msg muted";
+    $("se-msg").textContent = data.siteDomain
+      ? "Public host: " + data.siteDomain + " — the meta tags, canonical URLs, robots.txt and llms.txt are live."
+      : "No public domain set yet — set it on the Deploy tab so canonical URLs and the sitemap use your host.";
+    $("se-msg2").className = "msg";
+    $("se-msg2").textContent = "";
+  }
+
+  $("se-save").addEventListener("click", async () => {
+    const m = $("se-msg2");
+    m.className = "msg muted";
+    m.textContent = "Saving…";
+    const { status, data } = await api("POST", "/api/admin/seo", {
+      title: $("se-title").value,
+      description: $("se-description").value,
+      keywords: $("se-keywords").value,
+      ogImage: $("se-ogimage").value,
+      twitter: $("se-twitter").value,
+      googleVerification: $("se-googleverification").value,
+      bingVerification: $("se-bingverification").value,
+      indexable: $("se-indexable").checked,
+      robotsExtra: $("se-robotsExtra").value,
+      extraHead: $("se-extraHead").value,
+      llmsEnabled: $("se-llmsEnabled").checked,
+      aiCrawlers: $("se-aiCrawlers").checked,
+      llmsSummary: $("se-llmsSummary").value,
+      llmsFacts: $("se-llmsFacts").value,
+    });
+    if (status < 300) {
+      m.className = "msg ok";
+      m.textContent = "Saved — index.html, landing.html, robots.txt and llms.txt now use these settings.";
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  // ---- setup page ----
+  async function loadSetup() {
+    const { data } = await api("GET", "/api/admin/settings");
+    $("pg-name").value = data.siteName || "";
+    $("pg-tagline").value = data.siteTagline || "";
+    $("pg-banner").value = data.authBanner || "";
+    $("pg-cloud-path").value = data.cloudPath || "cloud";
+    $("pg-hide-legal").checked = !!data.hideLegalAndPro;
+    $("pg-beta").checked = data.betaBanner !== false;
+    const billing = await api("GET", "/api/admin/billing");
+    $("pg-sales-open").checked = !!(billing.data && billing.data.salesOpen);
+  }
+
+  // ---- event wiring ----
+  $("li-btn").addEventListener("click", doLogin);
+  $("li-pass").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+  $("li-user").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
+  $("logout").addEventListener("click", async () => { await api("POST", "/api/admin/logout"); refreshSession(); });
+
+  $("pg-save").addEventListener("click", async () => {
+    const { status, data } = await api("POST", "/api/admin/settings", {
+      siteName: $("pg-name").value, siteTagline: $("pg-tagline").value, authBanner: $("pg-banner").value,
+      cloudPath: $("pg-cloud-path").value,
+      hideLegalAndPro: $("pg-hide-legal").checked,
+      betaBanner: $("pg-beta").checked,
+    });
+    const m = $("pg-msg"); m.className = "msg " + (status < 300 ? "ok" : "err"); m.textContent = status < 300 ? "Saved." : data.error;
+  });
+
+  // Subscriptions switch on the Page setup tab — saved on change through the
+  // billing endpoint (partial POST: only salesOpen is sent, nothing else changes).
+  $("pg-sales-open").addEventListener("change", async () => {
+    const open = $("pg-sales-open").checked;
+    const { status, data } = await api("POST", "/api/admin/billing", { salesOpen: open });
+    const m = $("pg-sales-msg");
+    m.className = "msg " + (status < 300 ? "ok" : "err");
+    m.textContent = status < 300
+      ? (data.salesOpen ? "Subscriptions are OPEN — users can buy Pro now." : "Subscriptions are CLOSED — everyone uses the free plan; the site shows “Pro opens next month”.")
+      : (data.error || "Could not save.");
+    if ($("bi-open")) $("bi-open").checked = !!data.salesOpen;
+  });
+
+  $("cl-save").addEventListener("click", async () => {
+    const { status, data } = await api("POST", "/api/admin/cloud", {
+      provider: $("cl-provider").value, apiUrl: $("cl-apirul").value, host: $("cl-host").value, token: $("cl-token").value,
+    });
+    const m = $("cl-msg"); m.className = "msg " + (status < 300 ? "ok" : "err"); m.textContent = status < 300 ? "Saved (encrypted)." : data.error;
+  });
+  $("cl-test").addEventListener("click", async () => {
+    const m = $("cl-msg"); m.className = "msg muted"; m.textContent = "Testing…";
+    const { data } = await api("POST", "/api/admin/cloud/test");
+    m.className = "msg " + (data.ok ? "ok" : "err"); m.textContent = data.ok ? "Reachable ✓" : (data.detail || "Unreachable");
+  });
+
+  $("st-save").addEventListener("click", async () => {
+    const mode = document.querySelector('input[name="wf-storage"]:checked')?.value || "local";
+    const m = $("st-msg"); m.className = "msg muted"; m.textContent = "Switching…";
+    const { status, data } = await api("POST", "/api/admin/cloud/storage", { mode });
+    if (status >= 300) {
+      m.className = "msg err"; m.textContent = data.error || "Could not switch storage.";
+      return;
+    }
+    m.className = "msg ok"; m.textContent = data.message + " Restart the app to be safe.";
+    $("st-local-count").textContent = data.localWorkflowCount ? "(" + data.localWorkflowCount + " on device)" : "";
+    $("st-db-count").textContent = data.dbWorkflowCount ? "(" + data.dbWorkflowCount + " in DB)" : "";
+  });
+
+  $("bi-save").addEventListener("click", async () => {
+    const m = $("bi-msg");
+    const { status, data } = await api("POST", "/api/admin/billing", {
+      secretKey: $("bi-secret").value.trim(),
+      publishableKey: $("bi-pub").value.trim(),
+      webhookSecret: $("bi-wh").value.trim(),
+      priceId: $("bi-price").value.trim(),
+      successUrl: $("bi-success").value.trim(),
+      cancelUrl: $("bi-cancel").value.trim(),
+      salesOpen: $("bi-open").checked,
+    });
+    if (status < 300) {
+      m.className = "msg ok";
+      const state = data.salesOpen ? "sales are OPEN — customers can subscribe now" : "sales are CLOSED — the page shows Pro opens next month";
+      m.textContent = "Saved — Stripe " + (data.configured ? "is connected and " + state : "still needs a secret key + price id") + ".";
+      loadBilling();
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  // range buttons for the analytics chart
+  document.querySelectorAll("#tab-analytics [data-range]").forEach((b) => {
+    b.addEventListener("click", () => {
+      analyticsRange = b.dataset.range;
+      loadAnalytics();
+    });
+  });
+
+  $("de-testdb").addEventListener("click", async () => {
+    const m = $("de-msg");
+    const url = $("de-dburl").value.trim();
+    if (!url) { m.className = "msg err"; m.textContent = "Enter a PostgreSQL connection string to test."; return; }
+    m.className = "msg muted"; m.textContent = "Testing connection…";
+    const { data } = await api("POST", "/api/admin/deploy/test-db", { databaseUrl: url });
+    m.className = "msg " + (data.ok ? "ok" : "err");
+    m.textContent = data.ok ? "✓ " + data.detail : "✗ " + (data.detail || "Connection failed.");
+  });
+  $("de-save").addEventListener("click", async () => {
+    const { status, data } = await api("POST", "/api/admin/deploy/save", {
+      databaseUrl: $("de-dburl").value.trim(),
+      port: $("de-port").value.trim(),
+      trustProxy: $("de-trustproxy").checked,
+      encryptionKey: $("de-enckey").value.trim(),
+    });
+    const m = $("de-msg");
+    if (status < 300) {
+      m.className = "msg ok";
+      m.textContent = data.message || "Saved to .env — restart the app for it to take effect.";
+      loadDeploy();
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  $("de-pgon").addEventListener("click", async () => {
+    const m = $("de-pg-msg");
+    m.className = "msg muted";
+    m.textContent = "Enabling…";
+    const { status, data } = await api("POST", "/api/admin/deploy/postgres", {
+      enable: true,
+      password: $("de-pgpass").value.trim(),
+    });
+    m.className = "msg " + (status < 300 ? "ok" : "err");
+    m.textContent = status < 300 ? data.message : (data.error || "Enable failed.");
+    loadPostgres();
+  });
+  $("de-pgoff").addEventListener("click", async () => {
+    const m = $("de-pg-msg");
+    m.className = "msg muted";
+    m.textContent = "Disabling…";
+    const { status, data } = await api("POST", "/api/admin/deploy/postgres", { enable: false });
+    m.className = "msg " + (status < 300 ? "ok" : "err");
+    m.textContent = status < 300 ? data.message : (data.error || "Disable failed.");
+    loadPostgres();
+  });
+
+  // Cloudflare domain — regenerate the commands live while typing, save on blur.
+  $("de-domain").addEventListener("input", () => renderCloudCmds($("de-domain").value));
+  $("de-domain").addEventListener("blur", async () => {
+    const domain = $("de-domain").value.trim();
+    const { status, data } = await api("POST", "/api/admin/deploy/domain", { domain });
+    const m = $("de-domain-msg");
+    if (status < 300) {
+      m.className = "msg ok";
+      m.textContent = domain ? "Domain saved — run the commands on the VPS." : "Domain cleared.";
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  // AWS EC2 host — regenerate the commands live while typing, save on blur.
+  $("de-awshost").addEventListener("input", () => renderAwsCmds($("de-awshost").value));
+  $("de-awshost").addEventListener("blur", async () => {
+    const host = $("de-awshost").value.trim();
+    const { status, data } = await api("POST", "/api/admin/deploy/aws-host", { host });
+    const m = $("de-awshost-msg");
+    if (status < 300) {
+      m.className = "msg ok";
+      m.textContent = host ? "EC2 address saved." : "EC2 address cleared.";
+    } else {
+      m.className = "msg err";
+      m.textContent = data.error || "Save failed.";
+    }
+  });
+
+  // Landing page / SEO domain — explicit save so it never fights the Cloudflare
+  // field's blur-save above. The main server substitutes the saved domain into
+  // the YOUR-DOMAIN placeholders of /landing.html, /robots.txt and /sitemap.xml.
+  $("de-sitedomain-save").addEventListener("click", async () => {
+    const domain = $("de-sitedomain").value.trim();
+    const m = $("de-sitedomain-msg");
+    m.className = "msg muted";
+    m.textContent = "Saving…";
+    const { status, data } = await api("POST", "/api/admin/deploy/site-domain", { domain });
+    if (status < 300) loadDeploy(); // re-fetch so the input shows the sanitized value
+    m.className = "msg " + (status < 300 ? "ok" : "err");
+    m.textContent =
+      status < 300
+        ? data.domain
+          ? "Saved — " + data.domain + " now fills the YOUR-DOMAIN placeholders on the landing page, robots.txt and sitemap.xml."
+          : "Cleared — the SEO files keep the YOUR-DOMAIN placeholder until you set a domain."
+        : data.error || "Save failed.";
+  });
+
+  $("db-backup").addEventListener("click", () => { window.location.href = "/api/admin/db/download"; });
+
+  $("db-sql-run").addEventListener("click", async () => {
+    const sql = $("db-sql").value.trim();
+    const msg = $("db-sql-msg");
+    const out = $("db-sql-out");
+    if (!sql) { msg.className = "msg err"; msg.textContent = "Type some SQL first."; return; }
+    msg.className = "msg muted"; msg.textContent = "Running…";
+    const { status, data } = await api("POST", "/api/admin/db/query", { sql });
+    out.classList.remove("hidden");
+    if (!data.ok) {
+      msg.className = "msg err"; msg.textContent = (data.error || "SQL failed.").slice(0, 240);
+      out.innerHTML = "";
+      return;
+    }
+    msg.className = "msg ok";
+    msg.textContent = "OK in " + data.durationMs + " ms — " +
+      (data.rowCount > 0 ? data.rowCount + " row(s) returned" : data.changes > 0 ? data.changes + " row(s) changed" : "no rows");
+    if (data.rows && data.rows.length) {
+      const cols = data.columns || [];
+      const head = "<tr>" + cols.map((c) => "<th>" + esc(c) + "</th>").join("") + "</tr>";
+      const body = data.rows.map((r) => "<tr>" + cols.map((c) => { const cell = JSON.stringify(r[c] ?? ""); return "<td title='" + esc(cell.slice(0, 120)) + "'>" + esc(cell) + "</td>"; }).join("") + "</tr>").join("");
+      out.innerHTML = "<table>" + head + body + "</table>";
+    } else {
+      out.innerHTML = "<pre>Query finished — " + esc(msg.textContent) + "</pre>";
+    }
+  });
+  $("db-sql").addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") $("db-sql-run").click(); });
+  $("ac-save").addEventListener("click", async () => {
+    const { status, data } = await api("POST", "/api/admin/account", {
+      username: $("ac-user").value.trim(),
+      current: $("ac-cur").value,
+      next: $("ac-next").value,
+    });
+    const m = $("ac-msg");
+    m.className = "msg " + (status < 300 ? "ok" : "err");
+    if (status < 300) {
+      m.textContent = $("ac-next").value ? "Saved — please log in again with the new password." : "Account updated.";
+      refreshSession();
+    } else {
+      m.textContent = data.error || "Update failed.";
+    }
+  });
+
+  // init
+  (async () => {
+    const authed = await refreshSession();
+    if (authed) loadSetup();
+    initOpsPanels(); // wire the VPS / PostgreSQL / K8s / Nginx / Alerts / Backups / Journal panels
+    bindCopyButtons(document); // guide copy buttons (static HTML)
+  })();
+</script>
+</body>
+</html>

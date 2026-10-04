@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TESTWORKFLOW — PDF Analyzer</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; background:#0a0f1d; color:#f0f4ff; display:flex; align-items:flex-start; justify-content:center; padding:24px; }
+  .card { width:100%; max-width:620px; background:#111a2e; border:1px solid #1f2c4d; border-radius:12px; padding:26px; }
+  h1 { margin:0 0 4px; font-size:20px; }
+  p.sub { color:#a9b6d0; margin:2px 0 18px; font-size:13px; }
+  .drop { border:2px dashed #2c3d68; border-radius:10px; padding:34px 18px; text-align:center; color:#a9b6d0; cursor:pointer; }
+  .drop:hover, .drop.over { border-color:#4a7dff; background:rgba(74,125,255,.08); }
+  .icon { font-size:30px; display:block; margin-bottom:6px; }
+  input[type="file"] { display:none; }
+  label { font-size:12px; color:#a9b6d0; display:block; margin:14px 0 4px; }
+  input[type="text"] { width:100%; background:#0a101d; border:1px solid #1f2c4d; border-radius:7px; color:#f0f4ff; padding:8px 10px; font-size:13px; }
+  .btn { background:#45c98a; border:none; color:#0a0f1d; font-weight:700; padding:9px 18px; border-radius:7px; cursor:pointer; margin-top:16px; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .err { color:#e06a6a; margin-top:8px; font-size:13px; white-space:pre-wrap; }
+  .status { margin-top:14px; font-size:13px; color:#a9b6d0; }
+  pre { background:#0a101d; border:1px solid #1f2c4d; border-radius:8px; padding:14px; font-size:12px; overflow:auto; max-height:55vh; display:none; white-space:pre-wrap; word-break:break-word; }
+  pre.show { display:block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>TESTWORKFLOW — PDF Analyzer</h1>
+    <p class="sub">Workflow 3 (test-wf-pdfai): Webhook Receive → Extract PDF → AI Agent → Webhook Respond. Only PDF files are accepted.</p>
+
+    <div class="drop" id="drop">
+      <span class="icon">📄</span>
+      <div>Drag &amp; drop a PDF here, or click to choose</div>
+      <input type="file" id="file" accept=".pdf,application/pdf" />
+    </div>
+    <div class="err" id="err" style="display:none"></div>
+
+    <label>Webhook URL</label>
+    <input type="text" id="url" value="http://localhost:3001/webhook/test-wf-pdfai" />
+
+    <button class="btn" id="send" disabled>Analyze PDF</button>
+    <div class="status" id="status"></div>
+    <pre id="out"></pre>
+  </div>
+
+<script>
+  const file = document.getElementById("file");
+  const drop = document.getElementById("drop");
+  const err = document.getElementById("err");
+  const url = document.getElementById("url");
+  const send = document.getElementById("send");
+  const status = document.getElementById("status");
+  const out = document.getElementById("out");
+  let chosen = null;
+
+  function show(e){ err.style.display=e?"block":"none"; err.textContent=e||""; }
+  ["dragover","dragenter"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+  drop.addEventListener("click",()=>file.click());
+  drop.addEventListener("drop",e=>{ if(e.dataTransfer.files?.[0]) set(e.dataTransfer.files[0]); });
+  file.addEventListener("change",()=>{ if(file.files?.[0]) set(file.files[0]); });
+  function set(f){
+    if(f.type && f.type!=="application/pdf" && !/\.pdf$/i.test(f.name)){ show("Only PDF files are allowed."); chosen=null; send.disabled=true; return; }
+    show(""); chosen=f; send.disabled=false;
+    status.textContent = f.name + " (" + (f.size/1024).toFixed(0) + " KB) — ready.";
+  }
+
+  send.addEventListener("click", async () => {
+    if(!chosen) return;
+    show(""); out.classList.remove("show"); send.disabled=true;
+    status.textContent = "Analyzing PDF… (webhook receive → extract → agent → respond)";
+    try {
+      const b64 = arrayBufferToBase64(await chosen.arrayBuffer());
+      const res = await fetch(url.value.trim(), { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ pdf: b64, name: chosen.name }), signal: AbortSignal.timeout(90000) });
+      const text = await res.text();
+      const pretty = (()=>{ try { return JSON.stringify(JSON.parse(text),null,2); } catch { return text; } })();
+      out.textContent = `HTTP ${res.status}\n\n${pretty}`;
+      out.classList.add("show");
+      status.textContent = res.ok ? "Done." : "Webhook replied with an error.";
+    } catch(e){ show("Request failed: "+e.message); status.textContent=""; }
+    finally { send.disabled=false; }
+  });
+
+  function arrayBufferToBase64(buf){
+    const bytes = new Uint8Array(buf); let b=""; const step=0x8000;
+    for(let i=0;i<bytes.length;i+=step) b += String.fromCharCode.apply(null, bytes.subarray(i,i+step));
+    return btoa(b);
+  }
+</script>
+</body>
+</html>

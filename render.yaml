@@ -1,0 +1,67 @@
+# ============================================================================
+# W FLOW — Render starter template (alternative to a VPS)
+#
+# Vercel cannot run this app (serverless: no persistent disk, no long-running
+# process, no second port — see README → "Can I deploy it on Vercel?"). Render
+# runs long-lived containers with a persistent disk, so it works out of the
+# box. Deploy: render.com → New → Blueprint → select this GitHub repo.
+#
+# Two services, sharing one data disk (both processes read/write the same
+# ./data folder — SQLite handles this fine for a single operator):
+#   1. wflow      — the public site (login, workflows, community, …)
+#   2. wflow-admin — the admin panel, restricted to YOUR IPs
+#
+# On the free plan Render gives each service a *.onrender.com URL and both
+# services sleep after ~15 min of inactivity (they wake on the next request).
+# ============================================================================
+services:
+  # --- public site ----------------------------------------------------------
+  - type: web
+    name: wflow
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.js
+    healthCheckPath: /api/nodes
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: TRUST_PROXY
+        value: "1"
+      # Set a random 64-hex-char value in the dashboard (encrypts credentials
+      # at rest — losing it makes stored API keys unreadable):
+      - key: BF_ENCRYPTION_KEY
+        sync: false
+    disk:
+      name: wflow-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
+
+  # --- admin panel (only reachable from your IPs) ---------------------------
+  - type: web
+    name: wflow-admin
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server/admin.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PORT
+        value: "10000"
+      # REQUIRED: your own IPs / CIDRs, comma-separated. Everyone else gets
+      # 403 before the login page. Find your current IP at e.g. ipinfo.io.
+      #   e.g. 203.0.113.7  or  203.0.113.0/24
+      - key: ADMIN_ALLOWED_IPS
+        sync: false
+      # Set both so the first admin account is not the well-known default:
+      - key: BF_ADMIN_USERNAME
+        sync: false
+      - key: BF_ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: wflow-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

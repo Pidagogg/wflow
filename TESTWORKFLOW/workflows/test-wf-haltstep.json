@@ -1,0 +1,94 @@
+{
+  "id": "test-wf-haltstep",
+  "name": "Test 5 — Halt & Run Next Node (manual output)",
+  "description": "Manual trigger feeds fixed data; an IF node evaluates it; he branch is triggered via 'Run next node' using manual output to step past a halted node.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "manual",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Manual Trigger",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "manualOutput": true,
+          "manualOutputJson": "{\n  \"status\": \"success\"\n}"
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "if",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "IF Condition",
+        "config": {
+          "valueA": "{{status}}",
+          "operator": "equals",
+          "valueB": "success",
+          "caseSensitive": false
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "code",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Success path",
+        "config": {
+          "code": "return items.map(it => ({ json: { ...it.json, branch: 'success' } }));",
+          "outputFile": ""
+        }
+      }
+    },
+    {
+      "id": "n-4",
+      "type": "code",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Failure path",
+        "config": {
+          "code": "return items.map(it => ({ json: { ...it.json, branch: 'failure' } }));",
+          "outputFile": ""
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2true-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "true",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2false-n-4in",
+      "source": "n-2",
+      "target": "n-4",
+      "sourceHandle": "false",
+      "targetHandle": "in"
+    }
+  ]
+}

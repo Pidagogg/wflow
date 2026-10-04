@@ -1,0 +1,73 @@
+{
+  "id": "test-wf-template",
+  "name": "Test 6 — Prompt Template → Webhook Respond",
+  "description": "Webhook → Prompt Template builds a string from the payload → respond node returns the rendered prompt.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "webhook",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook (Receive)",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "method": "POST",
+          "responseMode": "json",
+          "customResponse": "{\n  \"ok\": true\n}",
+          "secret": ""
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "prompt",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Prompt Template",
+        "config": {
+          "template": "Hello {{body.name}}, your status is: {{body.status}}",
+          "outputField": "prompt"
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "webhookRespond",
+      "position": {
+        "x": 560,
+        "y": 200
+      },
+      "data": {
+        "label": "Webhook Respond",
+        "config": {
+          "status": 200,
+          "contentType": "json",
+          "body": "{\n  \"prompt\": \"{{prompt}}\"\n}"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2out-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

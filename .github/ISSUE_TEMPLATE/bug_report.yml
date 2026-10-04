@@ -1,0 +1,48 @@
+name: Bug report
+description: Something in W flow does not work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! While W flow is in beta, everyone whose report helps us fix something gets **a free month of Pro once Pro launches**.
+        **Security problems:** please e-mail main@w-flow.tech instead of opening an issue.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      options:
+        - w-flow.tech (cloud)
+        - My self-hosted copy
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node or page
+      placeholder: "e.g. Google Sheets — Append Row, or the Credentials page"
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do?
+      description: Step by step, so we can do the same. A workflow export (without credentials) helps a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: Include the BF-xxxx error code and message if a node showed one, and a screenshot if useful.
+    validations:
+      required: true
+  - type: input
+    id: account
+    attributes:
+      label: Your W flow account e-mail (optional)
+      description: Only needed for the free Pro month. You can also send it to main@w-flow.tech instead of posting it here.

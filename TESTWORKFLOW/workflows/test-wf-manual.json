@@ -1,0 +1,98 @@
+{
+  "id": "test-wf-manual",
+  "name": "Test 10 — Manual Chain + Stepping",
+  "description": "Manual trigger → set → code → code. Run normally, then use 'Run next node' to step past a halted node using manual output.",
+  "nodes": [
+    {
+      "id": "n-1",
+      "type": "manual",
+      "position": {
+        "x": -720,
+        "y": 200
+      },
+      "data": {
+        "label": "Manual Trigger",
+        "config": {
+          "inputMode": "auto",
+          "inputField": "",
+          "manualOutput": true,
+          "manualOutputJson": "{\n  \"name\": \"Ada\"\n}"
+        }
+      }
+    },
+    {
+      "id": "n-2",
+      "type": "set",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Set Fields",
+        "config": {
+          "mode": "set",
+          "parseValues": false,
+          "fields": [
+            {
+              "key": "greeting",
+              "value": "Hello {{name}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n-3",
+      "type": "code",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "Uppercase",
+        "config": {
+          "code": "return items.map(it => ({ json: { ...it.json, greeting: String(it.json.greeting || '').toUpperCase() } }));",
+          "outputFile": ""
+        }
+      }
+    },
+    {
+      "id": "n-4",
+      "type": "code",
+      "position": {
+        "x": -360,
+        "y": 200
+      },
+      "data": {
+        "label": "AddExclamation",
+        "config": {
+          "code": "return items.map(it => ({ json: { ...it.json, greeting: it.json.greeting + '!' } }));",
+          "outputFile": ""
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy-edge__n-1out-n-2in",
+      "source": "n-1",
+      "target": "n-2",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-2out-n-3in",
+      "source": "n-2",
+      "target": "n-3",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    },
+    {
+      "id": "xy-edge__n-3out-n-4in",
+      "source": "n-3",
+      "target": "n-4",
+      "sourceHandle": "out",
+      "targetHandle": "in"
+    }
+  ]
+}

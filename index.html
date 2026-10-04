@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>W flow — Workflow Builder</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Boot-error safety net: if the app script fails to load or crashes
+      // during startup, show the error on screen instead of a blank page.
+      window.addEventListener("error", function (e) {
+        var msg = e.message || (e.error && e.error.message) || "unknown error";
+        if (e.target && e.target.src && e.target.tagName === "SCRIPT") {
+          msg = "Script failed to load: " + e.target.src;
+        }
+        window.__bfBootError = msg;
+        var root = document.getElementById("root");
+        if (root && !root.children.length) {
+          root.innerHTML =
+            '<div style="font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;color:#f0f4ff;background:#0a0f1d;min-height:100vh;padding:60px 40px;font-size:13px;line-height:1.8">' +
+            '<div style="color:#e06a6a;letter-spacing:1.5px">✗ THE APP FAILED TO START</div>' +
+            '<div style="color:#a9b6d0;margin-top:8px">' + msg.replace(/[<>&"]/g, function (c) { return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]; }) + '</div>' +
+            '<div style="color:#6a7897;margin-top:24px;border:1px dashed #2c3d68;padding:14px 18px">Try a hard refresh (Ctrl+Shift+R) or open in an incognito window.<br>' +
+            'If the page was previously working, your browser may be serving a cached copy.</div>' +
+            '</div>';
+        }
+      });
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
