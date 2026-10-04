@@ -1,8 +1,8 @@
 ============================================================================
  W FLOW — FULL FUNCTIONAL TEST LOG
 ============================================================================
- Run started : 2026-10-04T22:19:48.272Z
- Run finished: 2026-10-04T22:19:51.505Z
+ Run started : 2026-10-04T22:49:29.553Z
+ Run finished: 2026-10-04T22:49:32.748Z
  Result      : ALL CHECKS PASSED  (74 passed / 0 failed / 74 total)
  Server      : real server/index.js + server/admin.js on isolated temp DB
  Browser     : built UI booted in headless Chrome — landing page + login/register
@@ -17,7 +17,7 @@
 A. AUTHENTICATION
   [PASS] A1 · /api/auth/config (registration policy readable)  status 200
   [PASS] A2 · register a new account (auto-login cookie)  status 200
-  [PASS] A3 · /api/auth/me recognises the session  u1-1791152389783@example.com
+  [PASS] A3 · /api/auth/me recognises the session  u1-1791154171046@example.com
   [PASS] A4 · duplicate registration rejected (409)  status 409
   [PASS] A5 · wrong password rejected (401)  status 401
   [PASS] A6 · short password rejected (400)  status 400
@@ -27,8 +27,8 @@ A. AUTHENTICATION
 B. WORKFLOW BUILDER + FOLDERS
   [PASS] B1 · home (main) folder auto-created  My Workflows
   [PASS] B2 · create subfolder under main folder  status 200
-  [PASS] B3 · create nested subfolder  parent f0520358-5c57-470d-8523-b9c72012a2ad
-  [PASS] B4 · create workflow inside a folder  folder a556f0e0-12f6-4bfa-8616-c76cbf847aba
+  [PASS] B3 · create nested subfolder  parent 04826af2-ab44-4070-b5cc-f9a277256de6
+  [PASS] B4 · create workflow inside a folder  folder b68aecf2-2d2b-4f3b-87c8-75fcd58cd45a
   [PASS] B5 · update (rename) workflow  status 200
   [PASS] B6 · run workflow (manual → set → log)  greeting = Hello Ada!
   [PASS] B7 · logic nodes run (if + hash)  sha256 length 64
@@ -36,7 +36,7 @@ B. WORKFLOW BUILDER + FOLDERS
   [PASS] B9 · live webhook fires the workflow (public endpoint)  status 200
   [PASS] B10 · move workflow between folders  status 200
   [PASS] B11 · delete folder  status 200
-  [PASS] B12 · workflow returns to main folder after folder delete  folder home-192c779e
+  [PASS] B12 · workflow returns to main folder after folder delete  folder home-b1f1ad0e
   [PASS] B13 · delete nested folder  status 200
 
 C. AI BUILDER (AGENTS)
@@ -63,13 +63,13 @@ D. COMMUNITY
 
 E. COLLABORATION / SHARED SESSIONS
   [PASS] E1 · share workflow with another user  status 200
-  [PASS] E2 · collaborator sees shared workflow in THEIR home folder  folder home-1a78d34b
-  [PASS] E3 · collaborator sees who shared the workflow  u1-1791152389783@example.com
+  [PASS] E2 · collaborator sees shared workflow in THEIR home folder  folder home-2c5e20a4
+  [PASS] E3 · collaborator sees who shared the workflow  u1-1791154171046@example.com
   [PASS] E4 · collaborator save lands in the shared record  status 200
   [PASS] E5 · collaborator cannot move the shared workflow (403)  status 403
   [PASS] E6 · shared auto-saves throttled to 1/minute (all 429 after E4's save)  statuses 429/429/429
-  [PASS] E7 · owner access check lists the collaborator  status 200 {"accessible":true,"shared":true,"sharedWith":[{"userId":"6319a0df-8d11-4135-b572-ad9b7fb72829","email":"u2-1791152389783@example.com","name":"User Two"}],"editing":[]}
-  [PASS] E8 · collaborator access check names the owner  u1-1791152389783@example.com
+  [PASS] E7 · owner access check lists the collaborator  status 200 {"accessible":true,"shared":true,"sharedWith":[{"userId":"f9fbf14f-f314-44c7-9549-8c03de183537","email":"u2-1791154171046@example.com","name":"User Two"}],"editing":[]}
+  [PASS] E8 · collaborator access check names the owner  u1-1791154171046@example.com
   [PASS] E9 · owner ends the shared session (collaborators removed)  status 200 {"ok":true,"collaborators":[]}
   [PASS] E13 · owner keeps the workflow with the final saved state  Final by Owner
   [PASS] E10 · collaborator access flips to false after session ends  accessible false

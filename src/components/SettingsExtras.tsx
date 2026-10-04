@@ -289,7 +289,7 @@ export function McpTab() {
           <a href="/docs/workflow-reference.md" target="_blank" rel="noopener">
             the workflow reference
           </a>{" "}
-          through <code>wflow_reference</code>. A run that takes longer than about 25 seconds answers with a run id, which{" "}
+          through <code>wflow_get_reference</code>. A run that takes longer than about 25 seconds answers with a run id, which{" "}
           <code>wflow_get_run</code> picks up later. Every call appears in Executions under “AI tool”.
         </div>
       </div>

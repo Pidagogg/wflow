@@ -61,6 +61,14 @@ while IFS= read -r line; do
   rm -rf "${MIRROR:?}/$path"
 done < .publicignore
 
+# The public repository opens with a product README (README.public.md); the
+# full technical README (self-hosting, deployment, development) stays
+# available next to it as TECHNICAL.md — same folder, so its links still work.
+if [ -f "$MIRROR/README.public.md" ]; then
+  mv "$MIRROR/README.md" "$MIRROR/TECHNICAL.md"
+  mv "$MIRROR/README.public.md" "$MIRROR/README.md"
+fi
+
 # ---- refuse to publish anything that looks like a secret ----
 if grep -rIl --exclude-dir=.git -E "(sk_live_[A-Za-z0-9]{10,}|whsec_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,}|GOCSPX-[A-Za-z0-9_-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----[A-Za-z0-9+/=[:space:]]{40,})" "$MIRROR" >/dev/null; then
   echo "A file in the public copy looks like it holds a real key — stopping:" >&2

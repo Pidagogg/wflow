@@ -480,22 +480,29 @@ function catalogLines(query, category) {
 
 const WORKFLOW_ARG = {
   type: "object",
-  description: "The workflow: { name, description, nodes: [ { id, type, position: {x,y}, data: { label, config } } ], edges: [ { source, target, sourceHandle, targetHandle: \"in\" } ] }. Call wflow_reference first.",
-  properties: { name: { type: "string" }, description: { type: "string" }, nodes: { type: "array", items: { type: "object" } }, edges: { type: "array", items: { type: "object" } } },
+  description: "The workflow: { name, description, nodes: [ { id, type, position: {x,y}, data: { label, config } } ], edges: [ { source, target, sourceHandle, targetHandle: \"in\" } ] }. Call wflow_get_reference first.",
+  properties: {
+    name: { type: "string", description: "The workflow's name." },
+    description: { type: "string", description: "What the workflow does (optional)." },
+    nodes: { type: "array", items: { type: "object" }, description: "The nodes: { id, type, position: { x, y }, data: { label, config } }." },
+    edges: { type: "array", items: { type: "object" }, description: "The connections: { source, target, sourceHandle, targetHandle: \"in\" }." },
+  },
   required: ["nodes"],
 };
 
 const BUILDER_TOOLS = [
   {
     level: "read",
-    name: "wflow_reference",
+    name: "wflow_get_reference",
+    // the name before verb-first naming; assistants set up with it keep working
+    aliases: ["wflow_reference"],
     title: "W flow workflow reference",
     description: "READ THIS FIRST before writing or changing a workflow. How a workflow JSON is written, how data moves between nodes, the {{placeholder}} rules, complete examples and the AI Agent tools. section: \"guide\" (default: format + rules + examples), \"catalog\" (every node type with fields and outputs — large; prefer wflow_list_node_types / wflow_get_node_type) or \"all\".",
     inputSchema: { type: "object", properties: { section: { type: "string", enum: ["guide", "catalog", "all"] } } },
     run: async (_user, a) => {
       const guide = `# Workflow JSON and engine rules\n\n${buildWorkflowFormatDoc()}\n\n# Worked examples\n\n${buildExamplesDoc()}\n\n# AI Agent tools\n\n${buildToolsDoc()}`;
       const text = a.section === "catalog" ? buildCatalogDoc() : a.section === "all" ? `${guide}\n\n# Node catalog\n\n${buildCatalogDoc()}` : guide;
-      return { content: [{ type: "text", text }] };
+      return { content: [{ type: "text", text }], structuredContent: { text } };
     },
   },
   {
@@ -667,17 +674,161 @@ const BUILDER_TOOLS = [
   },
 ];
 
+// ---- tool metadata (descriptions, annotations, output shapes) ----
+// What clients and MCP directories read to decide when a tool is safe and
+// what it returns: a description per argument, behaviour hints (read-only /
+// destructive / idempotent / reaches outside W flow) and the shape of the
+// structuredContent each tool answers with. Errors carry isError and no
+// structured content, which the spec allows with an outputSchema.
+const OBJ = (properties, extra = {}) => ({ type: "object", properties, ...extra });
+const FINDING = OBJ({
+  severity: { type: "string", description: "\"error\" or \"warning\"." },
+  path: { type: "string", description: "Where in the workflow JSON, e.g. nodes[2].data.config.url." },
+  message: { type: "string", description: "What is wrong and how to fix it." },
+  nodeId: { type: "string", description: "The node it concerns, when there is one." },
+});
+const VALIDATION = {
+  ok: { type: "boolean", description: "True when the workflow has no errors." },
+  errors: { type: "array", items: FINDING, description: "Problems that must be fixed before saving." },
+  warnings: { type: "array", items: FINDING, description: "Things that run but are probably not intended." },
+};
+const SAVED = OBJ({
+  workflow_id: { type: "string", description: "The saved workflow's id." },
+  url: { type: "string", description: "Link that opens the workflow in the W flow editor." },
+  dropped: { type: "array", items: { type: "string" }, description: "Unknown node types or broken edges that were left out." },
+  errors: VALIDATION.errors,
+  warnings: VALIDATION.warnings,
+}, { required: ["workflow_id"] });
+// A workflow's answer is whatever its last node returns, so the run shape
+// lists the status fields and leaves the rest open.
+const RUN_RESULT = OBJ({
+  status: { description: "\"running\": fetch the result later with wflow_get_run. \"error\": the run failed. Absent when the workflow finished — the other fields are its answer." },
+  run_id: { description: "Id for wflow_get_run while the run is still going." },
+  error: { description: "Why the run failed." },
+}, { additionalProperties: true });
+
+const TOOL_META = {
+  wflow_get_reference: {
+    params: { section: "Which part to return: \"guide\" (default — workflow JSON format, data rules and worked examples), \"catalog\" (every node type; large) or \"all\"." },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: OBJ({ text: { type: "string", description: "The reference as Markdown." } }, { required: ["text"] }),
+  },
+  wflow_list_node_types: {
+    params: {
+      query: "Words that must all appear in a node's type, name or description, e.g. \"google sheets\" or \"telegram send\". Empty lists everything.",
+      category: "Only node types of this group: Triggers, Actions, Logic, AI, Files, Feeds or Integrations.",
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: OBJ({
+      total: { type: "integer", description: "How many node types matched." },
+      shown: { type: "integer", description: "How many are listed (at most 60)." },
+      node_types: { type: "array", items: { type: "object" }, description: "Matches: type, name, category and a short description." },
+    }, { required: ["total", "node_types"] }),
+  },
+  wflow_get_node_type: {
+    params: { type: "The node type's id as listed by wflow_list_node_types, e.g. \"slackSend\", \"if\" or \"aiChat\"." },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: OBJ({
+      type: { type: "string", description: "The node type id." },
+      name: { type: "string", description: "Display name." },
+      kind: { type: "string", description: "trigger, action, logic or ai." },
+      description: { type: "string", description: "What the node does." },
+      fields: { type: "array", items: { type: "object" }, description: "Its settings: key, type, label, options, help." },
+      defaults: { type: "object", description: "Default value of every setting." },
+      output: { description: "The fields the node outputs for {{placeholders}} in later nodes." },
+      handles: { description: "Its output handles (branches)." },
+    }, { required: ["type", "fields"] }),
+  },
+  wflow_list_workflows: {
+    params: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: OBJ({
+      workflows: {
+        type: "array",
+        description: "The workflows this token can see.",
+        items: OBJ({
+          id: { type: "string", description: "Workflow id." },
+          name: { type: "string", description: "Workflow name." },
+          description: { type: "string", description: "Workflow description." },
+          nodes: { type: "integer", description: "Number of nodes." },
+          updated_at: { type: ["string", "null"], description: "Last change (ISO time)." },
+          offered_as_tool: { type: "boolean", description: "Whether it is also offered as its own tool." },
+          url: { type: "string", description: "Editor link." },
+        }),
+      },
+    }, { required: ["workflows"] }),
+  },
+  wflow_get_workflow: {
+    params: { workflow_id: "The workflow's id from wflow_list_workflows." },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: OBJ({
+      workflow: { type: "object", description: "id, name, description, nodes and edges; credentials blanked." },
+      url: { type: "string", description: "Editor link." },
+      errors: VALIDATION.errors,
+      warnings: VALIDATION.warnings,
+    }, { required: ["workflow"] }),
+  },
+  wflow_validate_workflow: {
+    params: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: OBJ(VALIDATION, { required: ["ok", "errors", "warnings"] }),
+  },
+  wflow_create_workflow: {
+    params: {},
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    outputSchema: SAVED,
+  },
+  wflow_update_workflow: {
+    params: { workflow_id: "The id of the workflow to replace, from wflow_list_workflows." },
+    // replaces the whole workflow, though the old state stays in its version history
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+    outputSchema: SAVED,
+  },
+  wflow_run_workflow: {
+    params: {
+      workflow_id: "The id of the workflow to run, from wflow_list_workflows.",
+      input: "The run's input — it reaches the workflow's trigger like a webhook body, e.g. { \"email\": \"ada@example.com\" }.",
+      wait_seconds: "How long to wait for the answer: 0–55, default 25. A longer run answers with a run_id instead.",
+    },
+    // a workflow can send mail, post messages, call APIs or charge cards
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
+    outputSchema: RUN_RESULT,
+  },
+  wflow_get_run: {
+    params: {
+      run_id: "The run_id a run answered with.",
+      wait_seconds: "How long to wait for the run to finish first: 0–55, default 0.",
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    outputSchema: RUN_RESULT,
+  },
+};
+
+for (const tool of BUILDER_TOOLS) {
+  const meta = TOOL_META[tool.name];
+  if (!meta) continue;
+  for (const [key, description] of Object.entries(meta.params)) {
+    const prop = tool.inputSchema.properties[key];
+    if (prop && !prop.description) prop.description = description;
+  }
+  tool.annotations = { title: tool.title, ...meta.annotations };
+  tool.outputSchema = meta.outputSchema;
+}
+
+/** A builder tool as tools/list and the server card show it. */
+const toolListing = ({ name, title, description, inputSchema, outputSchema, annotations }) => ({ name, title, description, inputSchema, outputSchema, annotations });
+
 const LEVEL_RANK = { run: 0, read: 1, build: 2 };
 const builderToolsFor = (user) => BUILDER_TOOLS.filter((t) => LEVEL_RANK[tokenOf(user).access] >= LEVEL_RANK[t.level]);
 
 async function listTools(user) {
   const offered = (await listToolWorkflows(user.userId)).filter((wf) => inScope(user, wf.id)).map(toolFor);
-  const builder = builderToolsFor(user).map(({ name, title, description, inputSchema }) => ({ name, title, description, inputSchema }));
+  const builder = builderToolsFor(user).map(toolListing);
   return [...offered, ...builder];
 }
 
 async function callTool(user, name, args) {
-  const builder = BUILDER_TOOLS.find((t) => t.name === name);
+  const builder = BUILDER_TOOLS.find((t) => t.name === name || t.aliases?.includes(name));
   if (builder) {
     if (LEVEL_RANK[tokenOf(user).access] < LEVEL_RANK[builder.level]) {
       return toolError(`The token "${tokenOf(user).name}" is not allowed to use ${name} — give it "${builder.level}" access under Settings → AI tools.`);
@@ -690,7 +841,7 @@ async function callTool(user, name, args) {
 // ---- JSON-RPC ----
 const rpcError = (id, code, message) => ({ jsonrpc: "2.0", id: id ?? null, error: { code, message } });
 
-const INSTRUCTIONS = `Tools named wflow_* read and build W flow workflows: call wflow_reference first, look up node types with wflow_list_node_types / wflow_get_node_type, check with wflow_validate_workflow, then save with wflow_create_workflow or wflow_update_workflow (always the complete workflow). Every other tool runs one of the user's workflows with its arguments as input. A run that takes long answers with a run_id — fetch it with wflow_get_run.`;
+const INSTRUCTIONS = `Tools named wflow_* read and build W flow workflows: call wflow_get_reference first, look up node types with wflow_list_node_types / wflow_get_node_type, check with wflow_validate_workflow, then save with wflow_create_workflow or wflow_update_workflow (always the complete workflow). Every other tool runs one of the user's workflows with its arguments as input. A run that takes long answers with a run_id — fetch it with wflow_get_run.`;
 
 export async function handleRpc(user, msg) {
   if (!msg || msg.jsonrpc !== "2.0" || typeof msg.method !== "string") return rpcError(msg?.id, -32600, "Invalid request");
@@ -737,7 +888,7 @@ export const isPublicRpc = (msg) =>
 export async function handleAnonymousRpc(msg) {
   if (msg?.method === "tools/list") {
     const isNotification = msg.id === undefined || msg.id === null;
-    const tools = BUILDER_TOOLS.map(({ name, title, description, inputSchema }) => ({ name, title, description, inputSchema }));
+    const tools = BUILDER_TOOLS.map(toolListing);
     return isNotification ? null : { jsonrpc: "2.0", id: msg.id, result: { tools } };
   }
   return handleRpc(null, msg);
@@ -778,7 +929,7 @@ export function mountMcpRoutes(app, { requireUser, publicUrl = () => "", createW
       serverInfo: { name: "w-flow", title: "W flow workflows", version: "2.0.0" },
       description: "Build, validate and run W flow automation workflows (470+ nodes) from an AI assistant.",
       authentication: { required: true, schemes: ["bearer"] },
-      tools: BUILDER_TOOLS.map(({ name, title, description, inputSchema }) => ({ name, title, description, inputSchema })),
+      tools: BUILDER_TOOLS.map(toolListing),
       resources: [],
       prompts: [],
     })

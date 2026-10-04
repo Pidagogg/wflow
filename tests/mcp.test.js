@@ -226,6 +226,57 @@ test("without a token: handshake and tool list work, everything else needs a tok
   assert.equal(init.result.serverInfo.name, "w-flow");
   const list = await mcp.handleAnonymousRpc({ jsonrpc: "2.0", id: 2, method: "tools/list" });
   const names = list.result.tools.map((t) => t.name);
-  assert.ok(names.includes("wflow_reference"));
+  assert.ok(names.includes("wflow_get_reference"));
   assert.ok(names.every((n) => n.startsWith("wflow_")), "no user's workflow tools without a token");
+});
+
+// ---- tool metadata ----
+// Directories (Smithery's quality score) and strict clients read these: every
+// argument described, behaviour annotations, and an outputSchema that the
+// real structuredContent must match.
+function schemaErrors(schema, value, at = "$") {
+  if (!schema || typeof schema !== "object") return [];
+  const types = schema.type === undefined ? null : [].concat(schema.type);
+  const kind = value === null ? "null" : Array.isArray(value) ? "array" : Number.isInteger(value) ? "integer" : typeof value;
+  if (types && !types.some((t) => t === kind || (t === "number" && kind === "integer"))) return [`${at}: ${kind} is not ${types.join("|")}`];
+  if (schema.enum && !schema.enum.includes(value)) return [`${at}: ${JSON.stringify(value)} not in enum`];
+  const errs = [];
+  if (kind === "object") {
+    for (const r of schema.required || []) if (!(r in value)) errs.push(`${at}.${r}: missing`);
+    for (const [k, sub] of Object.entries(schema.properties || {})) if (k in value) errs.push(...schemaErrors(sub, value[k], `${at}.${k}`));
+  }
+  if (kind === "array" && schema.items) value.forEach((v, i) => errs.push(...schemaErrors(schema.items, v, `${at}[${i}]`)));
+  return errs;
+}
+
+test("every builder tool documents its arguments, behaviour and output — and answers in that shape", async () => {
+  const user = tokenUser("u-meta", { access: "build" });
+  const listed = (await handleRpc(user, { jsonrpc: "2.0", id: 1, method: "tools/list" })).result.tools.filter((t) => t.name.startsWith("wflow_"));
+  assert.equal(listed.length, 10);
+  const byName = Object.fromEntries(listed.map((t) => [t.name, t]));
+  for (const t of listed) {
+    assert.match(t.name, /^wflow_(get|list|validate|create|update|run)_/, `${t.name} is verb-first`);
+    for (const [k, p] of Object.entries(t.inputSchema.properties)) assert.ok(p.description, `${t.name}.${k} has a description`);
+    assert.equal(typeof t.annotations?.readOnlyHint, "boolean", `${t.name} says whether it is read-only`);
+    assert.equal(t.outputSchema?.type, "object", `${t.name} has an outputSchema`);
+  }
+  const check = async (name, args) => {
+    const r = (await call(user, name, args)).result;
+    assert.equal(r.isError, undefined, `${name}: ${r.content?.[0]?.text}`);
+    assert.deepEqual(schemaErrors(byName[name].outputSchema, r.structuredContent), [], name);
+    return r.structuredContent;
+  };
+  await check("wflow_get_reference", {});
+  await check("wflow_list_node_types", { query: "slack" });
+  await check("wflow_get_node_type", { type: "if" });
+  const draft = { name: "Meta", nodes: [node("t", "manual"), node("x", "noop")], edges: [edge("t", "x")] };
+  await check("wflow_validate_workflow", { workflow: { nodes: [{ id: "a", type: "nope" }] } });
+  const { workflow_id: id } = await check("wflow_create_workflow", { workflow: draft });
+  await check("wflow_get_workflow", { workflow_id: id });
+  await check("wflow_list_workflows", {});
+  await check("wflow_update_workflow", { workflow_id: id, workflow: draft });
+  const run = await check("wflow_run_workflow", { workflow_id: id, wait_seconds: 0 });
+  if (run.run_id) await check("wflow_get_run", { run_id: run.run_id, wait_seconds: 5 });
+  // the old name still works for assistants set up with it
+  assert.equal((await call(user, "wflow_reference", {})).result.isError, undefined);
 });
