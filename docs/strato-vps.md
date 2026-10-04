@@ -6,7 +6,7 @@ to enter your access data and personal details. The whole setup takes about
 
 | File | What it is |
 |---|---|
-| `.env.production.example` | Production settings: domain, HTTPS, STRATO mail and hoster data for the legal pages |
+| `.env.production.example` | Production settings: domain, HTTPS, and placeholders for the mail account and the legal pages |
 | `deploy/vps.env.example` | Your VPS access data (IP, user, port). You copy it to `deploy/vps.env`, which is git-ignored |
 | `deploy/deploy.sh` | Run on your PC: uploads the project and starts it on the VPS |
 | `deploy/strato-setup.sh` | Runs on the VPS: installs Docker and a firewall, writes `.env` with fresh secrets, starts the app and Caddy (HTTPS) |
