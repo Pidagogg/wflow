@@ -24,7 +24,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { db, databaseEngine } from "./dbx.js";
 
 const APP_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -52,9 +52,29 @@ const TRUE = /^(1|true|yes|on)$/i;
 // Current state (environment as this process actually runs)
 // ---------------------------------------------------------------------------
 
-/** A copy the user installed themselves — it talks to no other instance. */
+// ---- official cloud ----
+// Every installation is a self-hosted copy — which needs a Pro licence key
+// (server/license.js) — unless it proves it is the official cloud at
+// w-flow.tech. The proof is WFLOW_CLOUD_SECRET, a random value that exists
+// only on the licensor's server; the code holds just its SHA-256, so neither
+// a flag nor a copy of the code is enough. Setting, patching or removing this
+// check on a copy circumvents the licence-key functionality, which the
+// Elastic License 2.0 forbids.
+const CLOUD_SECRET_SHA256 = "1861700c13c7e2ff8abe0feaac07d8c53284d5d55dcd85035f045a7968cebde6";
+
+/** Whether this process is the official cloud (w-flow.tech). */
+export function officialCloud() {
+  const secret = String(process.env.WFLOW_CLOUD_SECRET || "").trim();
+  if (secret && createHash("sha256").update(secret).digest("hex") === CLOUD_SECRET_SHA256) return true;
+  // The test suite: node --test sets NODE_TEST_CONTEXT in every test file's
+  // process, so the tests exercise the cloud's behaviour unless a test asks
+  // for a copy with WFLOW_STANDALONE=1. Not for running real workflows.
+  return !!process.env.NODE_TEST_CONTEXT;
+}
+
+/** A self-hosted copy: the installer's copy (WFLOW_STANDALONE) or any installation that is not the official cloud. */
 export function standaloneMode() {
-  return TRUE.test(String(process.env.WFLOW_STANDALONE || ""));
+  return TRUE.test(String(process.env.WFLOW_STANDALONE || "")) || !officialCloud();
 }
 
 /** The token this instance accepts from a remote builder ("" = not a runner). */

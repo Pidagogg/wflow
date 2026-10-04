@@ -52,7 +52,8 @@ another app calls it.
   10 workflows and 50 runs a day. Pick a template or describe what you want and let the
   AI build it.
 - **Your own server:** run W flow with Docker on your own machine — see
-  [TECHNICAL.md](TECHNICAL.md). Self-hosting is part of the Pro plan.
+  [TECHNICAL.md](TECHNICAL.md). Self-hosting needs a Pro licence key from your
+  account on w-flow.tech.
 
 W flow is in **open beta**. Found a bug? [Open an issue](../../issues/new/choose) —
 everyone whose report helps us fix something gets **a free month of Pro** once Pro

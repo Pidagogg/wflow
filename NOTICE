@@ -6,8 +6,9 @@ This software is licensed under the Elastic License 2.0 — see the LICENSE file
 In short (the LICENSE file is what counts): you may read, use, copy, modify
 and self-host W flow, for yourself or your company. You may not offer it to
 others as a hosted or managed service, and you may not change, disable or
-circumvent its licence-key checks (server/license.js) or remove features they
-protect.
+circumvent its licence-key checks (server/license.js, server/setup.js) or
+remove features they protect. Every installation other than the official cloud
+at w-flow.tech needs a Pro or Team licence key.
 
 "W flow" and the W flow logo are the licensor's trademarks; the licence does
 not grant rights to use them.

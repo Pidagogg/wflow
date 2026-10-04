@@ -88,6 +88,8 @@ const commonEnv = {
   BF_DATA_DIR: dataDir,
   DISABLE_SCHEDULER: "1",
   NODE_ENV: "test",
+  // test the cloud's behaviour, as node --test does (server/setup.js officialCloud)
+  NODE_TEST_CONTEXT: "smoke",
   ADMIN_ALLOWED_IPS: "",
   // Pin the seeded admin credentials so a developer's .env (which overrides the
   // well-known defaults) cannot change who the isolated test DB logs in as.

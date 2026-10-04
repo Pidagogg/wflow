@@ -186,6 +186,12 @@ The app opens with a public read-only preview. Visitors can browse the product o
 
 ## 🚀 Quick start
 
+> **Licence key needed.** Every installation except the official cloud at
+> [w-flow.tech](https://w-flow.tech) is a self-hosted copy and runs with a
+> **Pro or Team licence key** (Pro page on w-flow.tech). On first start the app
+> shows a lock screen where you paste it, or set `WFLOW_LICENSE_KEY` in `.env`.
+> Sign-in, the licence and Setup work without one; everything else waits for it.
+
 ```bash
 npm install
 npm run dev
